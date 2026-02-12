@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+ {% load static %}
+<html lang="en">
+ 
+
+
+<!-- auth-login.html  21 Nov 2019 03:49:32 GMT -->
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+  <title>Hopital </title>
+  <!-- General CSS Files -->
+  <link rel="stylesheet" href="{% static 'back/assets/css/app.min.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/bundles/bootstrap-social/bootstrap-social.css' %}">
+  <!-- Template CSS -->
+  <link rel="stylesheet" href="{% static 'back/assets/css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/css/components.css' %}">
+  <!-- Custom style CSS -->
+  <link rel="stylesheet" href="{% static 'back/assets/css/custom.css' %}">
+  <link rel='shortcut icon' type='image/x-icon' href="{% static 'back/assets/img/favicon.ico' %}" />
+
+  <style>
+    body{
+      background: linear-gradient(to left , #0008 ,#0000),url("{% static 'back/hopital/img4.jpg'%}");
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      min-height: 94.4vh;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="loader mt-4"></div>
+  <div id="app">
+    <section class="section mt-4">
+      <div class="container mt-5">
+        <div class="row mt-4">
+          <div class="col-12 col-sm-8 offset-sm-2 col-md-6 offset-md-3 col-lg-6 offset-lg-3 col-xl-4 offset-xl-4">
+            <div class="card card-primary mt-4">
+
+              <div class="card-header">
+                
+                <h4>Authentification</h4>
+              </div>
+              <div class="card-body">
+                 {% if msg %}
+                    <div class="alert alert-danger">
+                        {{msg}}
+                    </div>
+                {% endif %}
+                <form method="POST"  class="needs-validation" novalidate="">
+                  {% csrf_token %}
+                  {{form.as_p}}
+                  
+                  
+                  <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-lg btn-block" tabindex="4">
+                      Login
+                    </button>
+                  </div>
+                </form>
+                <div class="text-center mt-4 mb-3">
+                  <div class="text-job text-muted">Login With Social</div>
+                </div>
+                <div class="row sm-gutters">
+                  <div class="col-6">
+                    <a class="btn btn-block btn-social btn-facebook">
+                      <span class="fab fa-facebook"></span> Facebook
+                    </a>
+                  </div>
+                  <div class="col-6">
+                    <a class="btn btn-block btn-social btn-twitter">
+                      <span class="fab fa-twitter"></span> Twitter
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+  <!-- General JS Scripts -->
+  <script src="{% static 'back/assets/js/app.min.js'%}"></script>
+  <!-- JS Libraies -->
+  <!-- Page Specific JS File -->
+  <!-- Template JS File -->
+  <script src="{% static 'back/assets/js/scripts.js'%}"></script>
+  <!-- Custom JS File -->
+  <script src="{% static 'back/assets/js/custom.js'%}"></script>
+</body>
+
+
+<!-- auth-login.html  21 Nov 2019 03:49:32 GMT -->
+</html>
