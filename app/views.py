@@ -1,8 +1,9 @@
 from django.shortcuts import render , redirect 
 from django.contrib.auth import authenticate , login as auth , logout 
 from django.contrib.auth.decorators import login_required 
-from .forms import LoginForm , TypeFonctionForm 
+from .forms import LoginForm , TypeFonctionForm ,EmployeForm
 from .models import Fonction
+from django.contrib.auth.models import User
 
 # Create your views here.
 
@@ -38,7 +39,7 @@ def deco(request):
 @login_required()
 def panel(request):
 
-    
+    userCount = User.objects.count()
     myUser = Fonction.objects.filter(user_fonction = request.user).first()
     
     
@@ -46,8 +47,13 @@ def panel(request):
     # fonction
     fonction = myUser.fonction.type_fonction if myUser else None 
 
+    context = {
+        'fonction':fonction ,
+        'userCount':userCount ,  
+        
+        }
 
-    return render(request, 'back/index.html', {'fonction':fonction }) 
+    return render(request, 'back/index.html', context) 
 
 #
 # ==================== formulaire de type de fonction 
@@ -60,7 +66,7 @@ def type_fonction_add(request):
         form = TypeFonctionForm(request.POST) 
         if form.is_valid():
             form.save()
-            form = TypeFonctionForm()
+            form = TypeFonctionForm(request.POST)
             msg = "information enregistre"
 
     form = TypeFonctionForm()        
@@ -71,3 +77,27 @@ def type_fonction_add(request):
     
 
     return render(request , 'back/type_fonction_add.html',{'fonction':fonction, 'form': form, 'msg':msg})  
+
+#
+# ==================== enregistrement des employes 
+# ===================================================
+@login_required()
+def employeAdd(request):
+    msg = None
+    if request.method =='POST':
+        form = EmployeForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit= False) 
+            user.set_password(form.cleaned_data['password']) 
+            user.save()
+            # auth(request,user)
+            
+            form = EmployeForm(request.POST)
+            msg = "employe enregistre "
+        
+
+    form = EmployeForm()
+
+    myUser = Fonction.objects.filter(user_fonction = request.user).first()
+    fonction = myUser.fonction.type_fonction if myUser else None 
+    return render(request,'back/employeAdd.html',{'fonction':fonction, 'form':form, 'msg':msg}) 
