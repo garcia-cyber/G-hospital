@@ -9,4 +9,6 @@ urlpatterns = [
     path('deco/', deco , name='deco'),
     path('typeFonctionAdd/', type_fonction_add , name='type_fonction_add') , 
     path('employeAdd', employeAdd , name = 'employeAdd') , 
+    path('employeRead', employeRead , name='employeRead') , 
+    path('employeUpdate/<int:id>', employeUpdate , name='employeUpdate') , 
 ]

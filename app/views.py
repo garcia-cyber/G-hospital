@@ -1,15 +1,16 @@
 from django.shortcuts import render , redirect 
 from django.contrib.auth import authenticate , login as auth , logout 
 from django.contrib.auth.decorators import login_required 
-from .forms import LoginForm , TypeFonctionForm ,EmployeForm
+from .forms import LoginForm , TypeFonctionForm ,EmployeForm , EmployeUpdateForm
 from .models import Fonction
 from django.contrib.auth.models import User
 
 # Create your views here.
 
 
-#==============================
-#============================== login 
+#==============================================================
+# login 
+# =============================================================
 def login(request):
     msg = None
     if request.method == 'POST':
@@ -27,15 +28,16 @@ def login(request):
     form = LoginForm()
     return render(request, 'back/auth-login.html', {'form':form , 'msg':msg})  
 
-#
-# ========================================= deconnexion ======================
-#
+# =============================================================
+# deconnexion 
+# ============================================================
 def deco(request):
     logout(request)
     return redirect('login')
-#
-# ================================
-# ================================ panel controle 
+
+# ============================================================
+# panel controle 
+# =============================================================
 @login_required()
 def panel(request):
 
@@ -55,9 +57,9 @@ def panel(request):
 
     return render(request, 'back/index.html', context) 
 
-#
-# ==================== formulaire de type de fonction 
-# ===================================================
+# =============================================================
+# formulaire de type de fonction 
+# =============================================================
 @login_required()
 def type_fonction_add(request):
 
@@ -77,10 +79,9 @@ def type_fonction_add(request):
     
 
     return render(request , 'back/type_fonction_add.html',{'fonction':fonction, 'form': form, 'msg':msg})  
-
-#
-# ==================== enregistrement des employes 
-# ===================================================
+# =============================================================
+# enregistrement des employes 
+# =============================================================
 @login_required()
 def employeAdd(request):
     msg = None
@@ -101,3 +102,39 @@ def employeAdd(request):
     myUser = Fonction.objects.filter(user_fonction = request.user).first()
     fonction = myUser.fonction.type_fonction if myUser else None 
     return render(request,'back/employeAdd.html',{'fonction':fonction, 'form':form, 'msg':msg}) 
+
+
+
+# =============================================================
+# liste des employes 
+# =============================================================
+@login_required()
+def employeRead(request):
+
+    myUser = Fonction.objects.filter(user_fonction = request.user).first()
+    fonction = myUser.fonction.type_fonction if myUser else None 
+
+    lst = User.objects.all()
+
+    return render(request ,'back/employeRead.html', {'fonction': fonction , 'lst':lst}) 
+
+
+
+# ==============================================================
+# mise en jour employe 
+# ==============================================================
+@login_required()
+def employeUpdate(request,id):
+    call = User.objects.get(id = id)
+    if request.method == 'POST':
+        form = EmployeUpdateForm(request.POST , instance=call)
+        if form.is_valid():
+            form.save()
+            return redirect('employeRead')
+
+    form = EmployeUpdateForm(instance = call)        
+
+    myUser = Fonction.objects.filter(user_fonction = request.user).first()
+    fonction = myUser.fonction.type_fonction if myUser else None 
+
+    return render(request, 'back/employeUpdate.html',{'fonction':fonction,'form':form}) 

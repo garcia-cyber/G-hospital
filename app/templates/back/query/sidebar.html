@@ -28,9 +28,32 @@
                   data-feather="briefcase"></i><span>Employes</span></a>
                 <ul class="dropdown-menu">
                     <li><a class="nav-link" href="{% url "employeAdd" %}">Employe</a></li>
-                    <li><a class="nav-link" href="widget-data.html">Liste de type des employes</a></li>
+                    <li><a class="nav-link" href="{% url "employeRead" %}">Liste des employes</a></li>
                 </ul>
                 </li>
+                {% comment %} gestion des patients {% endcomment %}
+
+                <li class="dropdown">
+                <a href="#" class="menu-toggle nav-link has-dropdown"><i
+                  data-feather="briefcase"></i><span>Patient(e)s</span></a>
+                <ul class="dropdown-menu">
+                    <li><a class="nav-link" href="{% url "employeAdd" %}">Ajout du patient</a></li>
+                    <li><a class="nav-link" href="{% url "employeRead" %}">Liste des employes</a></li>
+                </ul>
+                </li>
+
+                {% comment %} gestion de Materiels {% endcomment %}
+
+                <li class="dropdown">
+                <a href="#" class="menu-toggle nav-link has-dropdown"><i
+                  data-feather="briefcase"></i><span>Materiels</span></a>
+                <ul class="dropdown-menu">
+                    <li><a class="nav-link" href="{% url "employeAdd" %}">Employe</a></li>
+                    <li><a class="nav-link" href="{% url "employeRead" %}">Liste des employes</a></li>
+                </ul>
+                </li>
+
+                {% comment %} gestion de depense  {% endcomment %}
                 
 
             {% else %}
