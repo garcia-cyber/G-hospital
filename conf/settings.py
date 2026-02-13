@@ -128,6 +128,13 @@ STATICFILES_URL = [
     BASE_DIR / 'static' 
 ]
 
+# redirection apres authentification
+#
 LOGIN_REDIRECT_URL = '/panel/' 
 LOGIN_URL = '/login/'
 LOGOUT_REDIRECT_URL = '/login/'
+
+# configuration media pour gere les images 
+#
+MEDIA_URL = '/media/'
+MEDIA_ROOT = '/media/'

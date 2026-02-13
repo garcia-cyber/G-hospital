@@ -23,10 +23,11 @@ class TypeFonction(models.Model):
         return self.type_fonction
 
 
-#
-# ================= creation de la table poste 
-# =================
-# =================
+
+# ==============================================================
+# creation de la table poste 
+# ==============================================================
+
 
 class Fonction(models.Model):
     fonction = models.ForeignKey(TypeFonction , on_delete= models.CASCADE) 
@@ -39,4 +40,17 @@ class Fonction(models.Model):
 
     # def __str__(self):
     #     return self.user_fonction
+
+# ====================================================================
+# creation de la table patient 
+# ====================================================================
+class Patient(models.Model):
+    noms = models.CharField(max_length=80)
+    TYPE = [
+        ('Masculin', 'masculin') , 
+        ('Feminin','feminin')
+    ]
+    sexe = models.CharField(max_length=15 , choices= TYPE)
+    age  = models.IntegerField()
+    adresse = models.CharField(max_length=100)
 
