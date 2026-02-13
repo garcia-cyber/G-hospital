@@ -32,5 +32,5 @@ class ProgrammeAdmin(admin.ModelAdmin) :
 # ===============================================
 @admin.register(Patient)
 class PatientAdmin(admin.ModelAdmin):
-    list_display = ['id','noms','sexe','age','adresse','poids','dateEn']
+    list_display = ['id','noms','sexe','age','adresse','poids','dateEn','userPatient','userPatient__email']
     search_fields = ['noms',]

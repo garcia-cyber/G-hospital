@@ -165,4 +165,17 @@ def patientAdd(request):
     form = PatientForm()
     myUser = Fonction.objects.filter(user_fonction = request.user).first()
     fonction = myUser.fonction.type_fonction if myUser else None 
+
     return render(request , 'back/patientAdd.html' , {'fonction':fonction, 'form':form , 'msg':msg})
+
+# ======================================================================
+#  patient read
+# ======================================================================
+@login_required()
+def patientRead(request):
+    myUser = Fonction.objects.filter(user_fonction = request.user).first()
+    fonction = myUser.fonction.type_fonction if myUser else None 
+
+    lst = Patient.objects.all()
+
+    return render(request , 'back/patientRead.html',{'fonction':fonction, 'lst':lst})  
