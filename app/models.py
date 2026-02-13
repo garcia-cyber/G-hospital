@@ -54,7 +54,9 @@ class Patient(models.Model):
     age  = models.IntegerField()
     adresse = models.CharField(max_length=100)
     poids = models.IntegerField()
-    dateEn = models.DateTimeField(auto_now_add= True)
+    dateEn = models.DateTimeField(auto_now_add= True) 
+    phone_responsable = models.IntegerField(null=True) 
+    userPatient = models.ForeignKey(User, on_delete= models.CASCADE , null= True)
 
 
     def __str__(self):

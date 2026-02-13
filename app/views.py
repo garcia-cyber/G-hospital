@@ -1,9 +1,10 @@
 from django.shortcuts import render , redirect 
 from django.contrib.auth import authenticate , login as auth , logout 
 from django.contrib.auth.decorators import login_required 
-from .forms import LoginForm , TypeFonctionForm ,EmployeForm , EmployeUpdateForm
+from .forms import LoginForm , TypeFonctionForm ,EmployeForm , EmployeUpdateForm  , PatientForm
 from .models import Fonction
 from django.contrib.auth.models import User
+from .models import * 
 
 # Create your views here.
 
@@ -42,6 +43,7 @@ def deco(request):
 def panel(request):
 
     userCount = User.objects.count()
+    patientCount = Patient.objects.count()
     myUser = Fonction.objects.filter(user_fonction = request.user).first()
     
     
@@ -51,7 +53,8 @@ def panel(request):
 
     context = {
         'fonction':fonction ,
-        'userCount':userCount ,  
+        'userCount':userCount ,
+        'patientCount':patientCount ,  
         
         }
 
@@ -138,3 +141,28 @@ def employeUpdate(request,id):
     fonction = myUser.fonction.type_fonction if myUser else None 
 
     return render(request, 'back/employeUpdate.html',{'fonction':fonction,'form':form}) 
+
+# =================================================================
+# patient enregistrement 
+# =================================================================
+@login_required()
+def patientAdd(request):
+    msg = None 
+    if request.method == 'POST':
+        form = PatientForm(request.POST) 
+        if form.is_valid():
+            patient =form.save()
+            if request.user.is_authenticated:
+                patient.userPatient = request.user
+                patient.save()
+                msg ='information enregistre'
+                form = PatientForm(request.POST) 
+            else:
+                msg = 'erreur du systeme'
+                
+                
+
+    form = PatientForm()
+    myUser = Fonction.objects.filter(user_fonction = request.user).first()
+    fonction = myUser.fonction.type_fonction if myUser else None 
+    return render(request , 'back/patientAdd.html' , {'fonction':fonction, 'form':form , 'msg':msg})

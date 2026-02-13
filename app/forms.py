@@ -1,5 +1,5 @@
 from django import forms 
-from .models import TypeFonction 
+from .models import TypeFonction , Patient
 from django.contrib.auth.models import User
 
 
@@ -56,4 +56,19 @@ class EmployeUpdateForm(forms.ModelForm):
             'username': forms.TextInput(attrs={'class':'form-control'}) ,
             'email': forms.EmailInput(attrs={'class':'form-control'}) ,
 
+        }
+
+# ====================================================
+# patient form 
+# ====================================================
+class PatientForm(forms.ModelForm):
+    class Meta :
+        model = Patient 
+        fields = ['noms','sexe','age','adresse','poids'] 
+        widgets = {
+            'noms': forms.TextInput(attrs={'class':'form-control'}) ,
+            'sexe' : forms.Select(attrs={'class':'form-control'}) ,
+            'age'  : forms.NumberInput(attrs={'class':'form-control'}) ,
+            'adresse': forms.TextInput(attrs={'class':'form-control'}) ,
+            'poids' : forms.NumberInput(attrs={'class':'form-control'})
         }

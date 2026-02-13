@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Fonction , Programme , TypeFonction
+from .models import Fonction , Programme , TypeFonction , Patient
 
 # Register your models here.
 
@@ -26,3 +26,11 @@ class FonctionAdmin(admin.ModelAdmin):
 @admin.register(Programme)
 class ProgrammeAdmin(admin.ModelAdmin) :
     list_display = ['statutProgramme','dateProgramme']
+
+# ===============================================
+# models patient 
+# ===============================================
+@admin.register(Patient)
+class PatientAdmin(admin.ModelAdmin):
+    list_display = ['id','noms','sexe','age','adresse','poids','dateEn']
+    search_fields = ['noms',]
