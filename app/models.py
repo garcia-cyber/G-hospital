@@ -62,4 +62,41 @@ class Patient(models.Model):
     def __str__(self):
         return self.noms 
 
+# =========================================================================
+# creation de la table commune 
+# =========================================================================
+class Commune(models.Model):
+    nomCommune = models.CharField(max_length=30 )
+
+    def __str__(self):
+        return self.nomCommune
+    
+# ===========================================================================
+# creation de la table stagiaire 
+# ===========================================================================
+class Stagiare(models.Model):
+    nomStagiaires = models.CharField(max_length=80)
+    TYPESEXE = [
+        ('Masculin','masculin') ,
+        ("Feminin", 'feminin')
+    ]
+    sexe = models.CharField(choices=TYPESEXE, max_length=20) 
+    phone = models.IntegerField()
+    commune = models.ForeignKey(Commune , on_delete=models.CASCADE) 
+    adresse = models.CharField(max_length=50) 
+    TYPESTAGE = [
+        ('Professionnel','professionnel') , 
+        ('Academique','academique')
+    ]
+    type_stage = models.CharField(max_length=30 ,choices=TYPESTAGE) 
+    dateDebut = models.DateField()
+    dateFin   = models.DateField()
+    userStagiaire = models.ForeignKey(User , on_delete= models.CASCADE)
+    stagiairename = models.CharField(max_length=40)
+    password = models.CharField(max_length=150)
+    dateRegistereStagiaire = models.DateTimeField(auto_now_add=True , null = True)
+
+    def __str__(self):
+        return self.nomStagiaires
+
 
