@@ -18,7 +18,7 @@ class TypeFonctionAdmin(admin.ModelAdmin):
 ##  fonction 
 @admin.register(Fonction)
 class FonctionAdmin(admin.ModelAdmin):
-    list_display = ['fonction','user_fonction','statut_fonction']
+    list_display = ['fonction','user_fonction','statut_fonction','service','commune','adresse','phone','etatCivil']
 
 ## ====================================
 ## ====================================
@@ -51,3 +51,11 @@ class CommuneAdmin(admin.ModelAdmin):
 class StagiaireAdmin(admin.ModelAdmin):
     list_display = ['nomStagiaires','sexe','phone','commune','adresse','type_stage','dateDebut','dateFin','userStagiaire__username'] 
     search_fields = ['nomStagiaires' , 'type_stage',]
+
+# ===============================================
+# service 
+# ===============================================
+@admin.register(Service)
+class ServiceAdmin(admin.ModelAdmin):
+    list_display =['service']
+    search_fields = ['service',] 

@@ -27,8 +27,9 @@
                 <a href="#" class="menu-toggle nav-link has-dropdown"><i
                   data-feather="briefcase"></i><span>Employes</span></a>
                 <ul class="dropdown-menu">
-                    <li><a class="nav-link" href="{% url "employeAdd" %}">Employe</a></li>
-                    <li><a class="nav-link" href="{% url "employeRead" %}">Liste des employes</a></li>
+                    <li><a class="nav-link" href="{% url "employeAdd" %}">Utilisateur</a></li>
+                    <li><a class="nav-link" href="{% url "employeRead" %}">Liste des utilisateurs</a></li>
+                    <li><a class="nav-link" href="{% url "profilRead" %}">Liste des profil utilisateur</a></li>
                 </ul>
                 </li>
                 {% comment %} gestion des patients {% endcomment %}
@@ -54,9 +55,20 @@
                 </li>
 
                 {% comment %} gestion de depense  {% endcomment %}
+
+                {% elif fonction == 'receptionniste' %}
+                <li class="dropdown">
+                <a href="#" class="menu-toggle nav-link has-dropdown"><i
+                  data-feather="briefcase"></i><span>Patient(e)s</span></a>
+                <ul class="dropdown-menu">
+                    <li><a class="nav-link" href="{% url "patientAdd" %}">Ajout du patient(e)</a></li>
+                    <li><a class="nav-link" href="{% url "patientRead" %}">Liste des patient(e)s</a></li>
+                </ul>
+                </li>
                 
 
-            {% else %}
+            
+                {% else %}
             <li class="dropdown">
               <a href="#" class="menu-toggle nav-link has-dropdown"><i data-feather="command"></i><span>Apps</span></a>
               <ul class="dropdown-menu">

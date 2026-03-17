@@ -1,10 +1,11 @@
-from django.shortcuts import render , redirect 
+from django.shortcuts import render , redirect , get_object_or_404
 from django.contrib.auth import authenticate , login as auth , logout 
 from django.contrib.auth.decorators import login_required 
 from .forms import LoginForm , TypeFonctionForm ,EmployeForm , EmployeUpdateForm  , PatientForm
 from .models import Fonction
 from django.contrib.auth.models import User
 from .models import * 
+from .forms import  *
 
 # Create your views here.
 
@@ -147,6 +148,46 @@ def employeUpdate(request,id):
     return render(request, 'back/employeUpdate.html',{'fonction':fonction,'form':form}) 
 
 # =================================================================
+# attribution de fonction est service
+# =================================================================
+@login_required()
+def employeProfil(request,user_id):
+    empl = get_object_or_404(User, id=user_id)
+    profil, created = Fonction.objects.get_or_create(user_fonction=empl)
+    msg = None 
+
+    if request.method == 'POST':
+        form = ProfilAddForm(request.POST , instance= profil)
+
+        if form.is_valid():
+            em = form.save(commit=False)
+
+            em.user_fonction = empl
+            em.save()
+
+            return redirect('profilRead') 
+
+
+    form = ProfilAddForm(instance= profil)    
+
+    myUser = Fonction.objects.filter(user_fonction = request.user).first()
+    fonction = myUser.fonction.type_fonction if myUser else None 
+    return render(request , 'back/employeProfil.html',{'fonction': fonction, 'form':form,'empl': empl})
+
+# =================================================================
+# profil read 
+# =================================================================
+@login_required()
+def profilRead(request):
+
+    lst = Fonction.objects.all()
+
+    myUser = Fonction.objects.filter(user_fonction = request.user).first()
+    fonction = myUser.fonction.type_fonction if myUser else None 
+
+    return render(request , 'back/profilRead.html',{'fonction':fonction,'lst': lst}) 
+
+# =================================================================
 # patient enregistrement 
 # =================================================================
 @login_required()
@@ -183,3 +224,4 @@ def patientRead(request):
     lst = Patient.objects.all()
 
     return render(request , 'back/patientRead.html',{'fonction':fonction, 'lst':lst})  
+

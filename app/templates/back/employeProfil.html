@@ -3,16 +3,20 @@
   {% load static %}
 
 
-<!-- export-table.html  21 Nov 2019 03:55:25 GMT -->
+<!-- forms-advanced-form.html  21 Nov 2019 03:54:41 GMT -->
 <head>
   <meta charset="UTF-8">
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
-  <title>Employe liste</title>
+  <title>profil employe</title> 
   <!-- General CSS Files -->
   <link rel="stylesheet" href="{% static 'back/assets/css/app.min.css'%}">
+  <link rel="stylesheet" href="{% static 'back/assets/bundles/bootstrap-daterangepicker/daterangepicker.css'%}">
+  <link rel="stylesheet" href="{% static 'back/assets/bundles/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css'%}">
+  <link rel="stylesheet" href="{% static 'back/assets/bundles/select2/dist/css/select2.min.css'%}">
+  <link rel="stylesheet" href="{% static 'back/assets/bundles/jquery-selectric/selectric.css'%}">
+  <link rel="stylesheet" href="{% static 'back/assets/bundles/bootstrap-timepicker/css/bootstrap-timepicker.min.css'%}">
+  <link rel="stylesheet" href="{% static 'back/assets/bundles/bootstrap-tagsinput/dist/bootstrap-tagsinput.css'%}">
   <!-- Template CSS -->
-  <link rel="stylesheet" href="{% static 'back/assets/bundles/datatables/datatables.min.css'%}">
-  <link rel="stylesheet" href="{% static 'back/assets/bundles/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css'%}">
   <link rel="stylesheet" href="{% static 'back/assets/css/style.css'%}">
   <link rel="stylesheet" href="{% static 'back/assets/css/components.css'%}">
   <!-- Custom style CSS -->
@@ -25,51 +29,49 @@
   <div id="app">
     <div class="main-wrapper main-wrapper-1">
       <div class="navbar-bg"></div>
-     {% include "back/query/nav.html" %}
+      
+      {% include "back/query/nav.html" %}
       {% include "back/query/sidebar.html" %}
       <!-- Main Content -->
       <div class="main-content">
         <section class="section">
           <div class="section-body">
             <div class="row">
-              <div class="col-12">
+              <div class="col-12 col-md-6 col-lg-6">
                 <div class="card">
                   <div class="card-header">
-                    <h4>Liste des employes</h4>
+                    <h4>Formulaire profil employe</h4> 
                   </div>
                   <div class="card-body">
-                    <div class="table-responsive">
-                      <table class="table table-striped table-hover" id="tableExport" style="width:100%;">
-                        <thead>
-                          <tr>
-
-                            <th>id</th>
-                            <th>Noms</th>
-                            <th>email</th>
-                            <th>Traitements</th>
-                            
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {% for listes in lst %}
-
-                          <tr>
-                            <td>{{listes.id}}</td>
-                            <td>{{listes.username}}</td>
-                            <td>{{listes.email}}</td>
-                            <td>
-                              <a href="{% url "employeUpdate" listes.id %}" class="btn btn-primary">modifier</a>
-                              <a href="{% url "employeProfil" listes.id %}" class="btn btn-warning">Profil</a>
-                            </td>
-                          </tr>
-                          
-                          {% endfor %}
-                        </tbody>
-                      </table>
+                 {% if msg %}
+                    <div class="alert alert-success">
+                        {{msg}}
                     </div>
+                {% endif %}
+                <form method="POST"  class="needs-validation" novalidate="">
+                  {% csrf_token %}
+                  {{form.as_p}}
+                  
+                  
+                  <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-lg btn-block" tabindex="4">
+                      Valider
+                    </button>
+                  </div>
+                </form>
+               
+                
+              </div>
+                    
+                      
+                    
+                    
                   </div>
                 </div>
+               
+                
               </div>
+              
             </div>
           </div>
         </section>
@@ -177,16 +179,17 @@
   <!-- General JS Scripts -->
   <script src="{% static 'back/assets/js/app.min.js'%}"></script>
   <!-- JS Libraies -->
+  <script src="{% static 'back/assets/bundles/cleave-js/dist/cleave.min.js'%}"></script>
+  <script src="{% static 'back/assets/bundles/cleave-js/dist/addons/cleave-phone.us.js'%}"></script>
+  <script src="{% static 'back/assets/bundles/jquery-pwstrength/jquery.pwstrength.min.js'%}"></script>
+  <script src="{% static 'back/assets/bundles/bootstrap-daterangepicker/daterangepicker.js'%}"></script>
+  <script src="{% static 'back/assets/bundles/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js'%}"></script>
+  <script src="{% static 'back/assets/bundles/bootstrap-timepicker/js/bootstrap-timepicker.min.js'%}"></script>
+  <script src="{% static 'back/assets/bundles/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js'%}"></script>
+  <script src="{% static 'back/assets/bundles/select2/dist/js/select2.full.min.js'%}"></script>
+  <script src="{% static 'back/assets/bundles/jquery-selectric/jquery.selectric.min.js'%}"></script>
   <!-- Page Specific JS File -->
-  <script src="{% static 'back/assets/bundles/datatables/datatables.min.js'%}"></script>
-  <script src="{% static 'back/assets/bundles/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js'%}"></script>
-  <script src="{% static 'back/assets/bundles/datatables/export-tables/dataTables.buttons.min.js'%}"></script>
-  <script src="{% static 'back/assets/bundles/datatables/export-tables/buttons.flash.min.js'%}"></script>
-  <script src="{% static 'back/assets/bundles/datatables/export-tables/jszip.min.js'%}"></script>
-  <script src="{% static 'back/assets/bundles/datatables/export-tables/pdfmake.min.js'%}"></script>
-  <script src="{% static 'back/assets/bundles/datatables/export-tables/vfs_fonts.js'%}"></script>
-  <script src="{% static 'back/assets/bundles/datatables/export-tables/buttons.print.min.js'%}"></script>
-  <script src="{% static 'back/assets/js/page/datatables.js'%}"></script>
+  <script src="{% static 'back/assets/js/page/forms-advanced-forms.js'%}"></script>
   <!-- Template JS File -->
   <script src="{% static 'back/assets/js/scripts.js'%}"></script>
   <!-- Custom JS File -->
@@ -194,5 +197,5 @@
 </body>
 
 
-<!-- export-table.html  21 Nov 2019 03:56:01 GMT -->
+<!-- forms-advanced-form.html  21 Nov 2019 03:55:08 GMT -->
 </html>

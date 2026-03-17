@@ -1,6 +1,7 @@
 from django import forms 
 from .models import TypeFonction , Patient
 from django.contrib.auth.models import User
+from .models import * 
 
 
 # creation du formulaire d'authentification 
@@ -56,6 +57,22 @@ class EmployeUpdateForm(forms.ModelForm):
             'username': forms.TextInput(attrs={'class':'form-control'}) ,
             'email': forms.EmailInput(attrs={'class':'form-control'}) ,
 
+        }
+
+# ====================================================
+# profil employes 
+# ====================================================
+class ProfilAddForm(forms.ModelForm):
+    class Meta:
+        model = Fonction 
+        fields = ['fonction','service','etatCivil','phone','adresse','commune'] 
+        widgets = {
+            'fonction': forms.Select(attrs={'class':'form-control'}) ,
+            'service' : forms.Select(attrs={'class':'form-control'}) , 
+            'etatCivil' : forms.Select(attrs={'class':'form-control'}) , 
+            'phone'     : forms.NumberInput(attrs={'class':'form-control'}) ,
+            'adresse'   : forms.TextInput(attrs={'class':'form-control'}) ,
+            'commune'   : forms.Select(attrs={'class':'form-control'}) , 
         }
 
 # ====================================================

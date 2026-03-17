@@ -132,7 +132,7 @@ STATICFILES_URL = [
 #
 LOGIN_REDIRECT_URL = '/panel/' 
 LOGIN_URL = '/login/'
-LOGOUT_REDIRECT_URL = '/home/'
+LOGOUT_REDIRECT_URL = '/home/' 
 
 # configuration media pour gere les images 
 #

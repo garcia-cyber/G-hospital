@@ -14,4 +14,6 @@ urlpatterns = [
     path('patientAdd/', patientAdd , name="patientAdd") , 
     path('patientRead/', patientRead , name ="patientRead") , 
     path('', home , name= 'home') , 
+    path('employeProfil/<int:user_id>/', employeProfil , name= 'employeProfil') ,
+    path('profilRead/', profilRead , name='profilRead') , 
 ]

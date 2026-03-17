@@ -22,6 +22,25 @@ class TypeFonction(models.Model):
     def __str__(self):
         return self.type_fonction
 
+# creation de la table service pour parametre les fonctions 
+# ===============================================================
+# ===============================================================
+class Service(models.Model):
+    service = models.CharField(max_length = 50) 
+
+    def __str__(self):
+        return self.service 
+    
+    
+# ===========================================================
+# commune 
+# ===========================================================
+class Commune(models.Model):
+    nomCommune = models.CharField(max_length= 80)
+
+    def __str__(self):
+        return self.nomCommune
+    
 
 
 # ==============================================================
@@ -30,16 +49,36 @@ class TypeFonction(models.Model):
 
 
 class Fonction(models.Model):
-    fonction = models.ForeignKey(TypeFonction , on_delete= models.CASCADE) 
-    user_fonction = models.ForeignKey(User, on_delete= models.CASCADE) 
+    fonction = models.ForeignKey(TypeFonction , on_delete= models.SET_NULL , null = True) 
+    user_fonction = models.ForeignKey(User, on_delete= models.SET_NULL , null = True) 
     TYPE = [
         ('Actif','actif') ,
         ('Bloque','bloque')
     ]
-    statut_fonction = models.CharField(max_length=10 , choices=TYPE) 
+    statut_fonction = models.CharField(max_length=10 , choices=TYPE , default= 'actif') 
+    service = models.ForeignKey(Service , on_delete= models.SET_NULL , null = True)
+    adresse = models.CharField(max_length= 80 , null= True) 
+    TYPEETAT = [
+        ('celibateur','Celibateur') ,
+        ('marie','Marie') ,
+        ('divorce','Divorce') 
+    ]
+    etatCivil = models.CharField(max_length=30 , null = True, choices= TYPEETAT) 
+    phone = models.IntegerField(null = True) 
+    TYPECOMMUNE = [
+        ('limete','Limete') ,
+        ('masina','Masina') , 
+        ('matete', 'Matete') , 
+        ('lemba', 'Lemba') , 
+        ("n'djili", "N'djili" ),
+        ('ngaliema', 'Ngaliema') , 
+        ('gombe','Gombe')
+    ]
+    commune = models.CharField(max_length=50 , null = True, choices=TYPECOMMUNE)
+    
 
-    # def __str__(self):
-    #     return self.user_fonction
+    def __str__(self):
+        return self.statut_fonction
 
 # ====================================================================
 # creation de la table patient 
@@ -57,6 +96,17 @@ class Patient(models.Model):
     dateEn = models.DateTimeField(auto_now_add= True) 
     phone_responsable = models.IntegerField(null=True) 
     userPatient = models.ForeignKey(User, on_delete= models.CASCADE , null= True)
+    TYPECOMMUNE = [
+        ('limete','Limete') ,
+        ('masina','Masina') , 
+        ('matete', 'Matete') , 
+        ('lemba', 'Lemba') , 
+        ("n'djili", "N'djili" ),
+        ('ngaliema', 'Ngaliema') , 
+        ('gombe','Gombe')
+    ]
+    commune = models.CharField(max_length=50 , null = True, choices=TYPECOMMUNE)
+    service_patient = models.ForeignKey(Service , on_delete= models.SET_NULL , null = True)
 
 
     def __str__(self):

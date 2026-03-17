@@ -7,7 +7,7 @@
 <head>
   <meta charset="UTF-8">
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
-  <title>Employe liste</title>
+  <title>Employe profils</title>
   <!-- General CSS Files -->
   <link rel="stylesheet" href="{% static 'back/assets/css/app.min.css'%}">
   <!-- Template CSS -->
@@ -35,7 +35,7 @@
               <div class="col-12">
                 <div class="card">
                   <div class="card-header">
-                    <h4>Liste des employes</h4>
+                    <h4>Liste des profils employes</h4>
                   </div>
                   <div class="card-body">
                     <div class="table-responsive">
@@ -44,8 +44,12 @@
                           <tr>
 
                             <th>id</th>
-                            <th>Noms</th>
-                            <th>email</th>
+                            <th>utilisateur</th>
+                            <th>fonction</th>
+                            <th>etat-civil</th>
+                            <th>phone</th>
+                            <th>adresse</th>
+                            <th>commune</th>
                             <th>Traitements</th>
                             
                           </tr>
@@ -55,11 +59,15 @@
 
                           <tr>
                             <td>{{listes.id}}</td>
-                            <td>{{listes.username}}</td>
-                            <td>{{listes.email}}</td>
+                            <td>{{listes.user_fonction}}</td>
+                            <td>{{listes.fonction}}</td>
+                            <td>{{listes.etatCivil}}</td>
+                            <td>{{listes.phone}}</td>
+                             <td>{{listes.adresse}}</td>
+                              <td>{{listes.commune}}</td>
                             <td>
-                              <a href="{% url "employeUpdate" listes.id %}" class="btn btn-primary">modifier</a>
-                              <a href="{% url "employeProfil" listes.id %}" class="btn btn-warning">Profil</a>
+                              <a href="" class="btn btn-primary">modifier</a>
+                              
                             </td>
                           </tr>
                           
