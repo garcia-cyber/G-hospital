@@ -81,3 +81,9 @@ class FactureAdmin(admin.ModelAdmin):
 @admin.register(Consultation)
 class ConsultationAdmin(admin.ModelAdmin):
     list_display = ['patient','service','facture','temperature','poids','tension','statut', 'date_creation']
+# =========================================
+# Notification
+# =========================================
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ['user','titre','message','date_envoi','est_lu','service_origine']
