@@ -33,7 +33,7 @@ class ProgrammeAdmin(admin.ModelAdmin) :
 # ===============================================
 @admin.register(Patient)
 class PatientAdmin(admin.ModelAdmin):
-    list_display = ['id','noms','sexe','age','adresse','poids','dateEn','userPatient','userPatient__email']
+    list_display = ['id','noms','sexe','age','adresse','poids','dateEn','userPatient','service_patient','userPatient__email']
     search_fields = ['noms',]
 
 # ==============================================
@@ -59,3 +59,25 @@ class StagiaireAdmin(admin.ModelAdmin):
 class ServiceAdmin(admin.ModelAdmin):
     list_display =['service']
     search_fields = ['service',] 
+
+
+# ===========================================
+# prestation 
+# ==========================================
+@admin.register(Prestation)
+class PrestationAdmin(admin.ModelAdmin):
+    list_display = ['libelle','prix_fixe']
+
+# ============================================
+# facture 
+# ============================================
+@admin.register(Facture)
+class FactureAdmin(admin.ModelAdmin):
+    list_display = ['patient','prestation','total_a_payer','date_emission','est_soldee']
+
+# =========================================
+# Consultation
+# =========================================
+@admin.register(Consultation)
+class ConsultationAdmin(admin.ModelAdmin):
+    list_display = ['patient','service','facture','temperature','poids','tension','statut', 'date_creation']

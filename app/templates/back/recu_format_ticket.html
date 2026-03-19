@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        @media print {
+            @page { size: 80mm 200mm; margin: 0; }
+            body { width: 80mm; font-family: 'Courier New', Courier, monospace; font-size: 12px; }
+            .no-print { display: none; }
+        }
+        .ticket { width: 75mm; padding: 5mm; text-align: center; }
+        .dashed { border-top: 1px dashed black; margin: 10px 0; }
+        .details { text-align: left; margin-bottom: 10px; }
+    </style>
+</head>
+<body onload="window.print();">
+    <div class="ticket">
+        <h3>{{ hopital_nom }}</h3>
+        <p>Reçu de Paiement #{{ facture.id }}</p>
+        <div class="dashed"></div>
+        
+        <div class="details">
+            Date: {{ paiement.date_paiement|date:"d/m/Y H:i" }}<br>
+            Patient: {{ facture.patient.noms }} {{ facture.patient.postnom }}<br>
+            Acte: {{ facture.prestation.libelle }}
+        </div>
+        
+        <div class="dashed"></div>
+        
+        <div style="font-size: 16px;">
+            <strong>TOTAL: {{ facture.total_a_payer }} CDF</strong><br>
+            Payé: {{ paiement.montant_verse }} CDF<br>
+            Reste: {{ facture.reste_a_payer }} CDF
+        </div>
+        
+        <div class="dashed"></div>
+        <p>Merci pour votre confiance.</p>
+        
+        <button class="no-print" onclick="window.history.back();">Retour</button>
+    </div>
+</body>
+</html>

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+  <title>Encaissement - {{ patient.noms }}</title> 
+  <link rel="stylesheet" href="{% static 'back/assets/css/app.min.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/bundles/select2/dist/css/select2.min.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/css/components.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/css/custom.css' %}">
+  <link rel='shortcut icon' type='image/x-icon' href="{% static 'back/assets/img/favicon.ico' %}" />
+  <style>
+    /* Style pour le champ désactivé visuellement */
+    .readonly-select { pointer-events: none; background-color: #e9ecef; opacity: 0.8; }
+  </style>
+</head>
+
+<body>
+  <div class="loader"></div>
+  <div id="app">
+    <div class="main-wrapper main-wrapper-1">
+      <div class="navbar-bg"></div>
+      
+      {% include "back/query/nav.html" %}
+      {% include "back/query/sidebar.html" %}
+
+      <div class="main-content">
+        <section class="section">
+          <div class="section-header">
+            <h1>Gestion des Encaissements</h1>
+          </div>
+
+          <div class="section-body">
+            <h2 class="section-title">Patient : {{ patient.noms }}</h2>
+            
+            <div class="row">
+              <div class="col-12 col-md-5">
+                <div class="card card-primary">
+                  <div class="card-header">
+                    <h4>{% if facture %}Compléter Paiement{% else %}Nouvel Acte Médical{% endif %}</h4>
+                  </div>
+                  <div class="card-body">
+                    
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible show fade">
+                              <div class="alert-body">
+                                <button class="close" data-dismiss="alert"><span>&times;</span></button>
+                                {{ message }}
+                              </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <div id="prix-info-box" class="alert alert-info shadow-sm {% if not facture %}d-none{% endif %}">
+                        <div class="d-flex justify-content-between">
+                            <span>{% if facture %}Reste à payer :{% else %}Prix de la prestation :{% endif %}</span>
+                            <b id="prix-valeur">{% if facture %}{{ facture.reste_a_payer }}{% else %}0{% endif %} CDF</b>
+                        </div>
+                    </div>
+
+                    <form method="POST" class="needs-validation" novalidate="">
+                      {% csrf_token %}
+                      
+                      <div class="form-group">
+                        <label>Acte Médical</label>
+                        <div class="{% if facture %}readonly-select{% endif %}">
+                            {{ form.prestation }}
+                        </div>
+                        {% if facture %}
+                        <small class="text-muted italic">L'acte est déjà fixé pour cette facture.</small>
+                        {% endif %}
+                        <div class="invalid-feedback">Veuillez choisir une prestation.</div>
+                      </div>
+
+                      <div class="form-group">
+                        <label>Montant à verser (CDF)</label>
+                        <div class="input-group">
+                          <div class="input-group-prepend">
+                            <div class="input-group-text"><i class="fas fa-money-bill-wave"></i></div>
+                          </div>
+                          {{ form.montant_verse }}
+                        </div>
+                        <small id="montant-helper" class="form-text text-muted">Saisissez le montant perçu.</small>
+                      </div>
+
+                      <div class="form-group">
+                        <button type="submit" id="btn-valider" class="btn btn-primary btn-lg btn-block shadow-primary">
+                          Confirmer l'encaissement
+                        </button>
+                        <a href="{% url 'liste_factures_patient' patient.id %}" class="btn btn-secondary btn-block mt-2">
+                          Voir l'historique
+                        </a>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12 col-md-7">
+                <div class="card">
+                  <div class="card-header">
+                    <h4>Détails Facture Courante</h4>
+                  </div>
+                  <div class="card-body">
+                    {% if facture %}
+                    <div class="row mb-4">
+                        <div class="col-sm-4 text-center border-right">
+                            <label class="text-muted small">TOTAL</label>
+                            <h6>{{ facture.total_a_payer }} CDF</h6>
+                        </div>
+                        <div class="col-sm-4 text-center border-right">
+                            <label class="text-muted small">PERÇU</label>
+                            <h6 class="text-success">{{ facture.total_verse }} CDF</h6>
+                        </div>
+                        <div class="col-sm-4 text-center">
+                            <label class="text-muted small">RESTE</label>
+                            <h6 class="text-danger">{{ facture.reste_a_payer }} CDF</h6>
+                        </div>
+                    </div>
+
+                    <h6>Historique des versements pour cet acte :</h6>
+                    <ul class="list-group list-group-flush">
+                        {% for p in facture.paiements.all %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ p.date_paiement|date:"d/m/Y H:i" }}
+                            <span class="badge badge-success">+ {{ p.montant_verse }} CDF</span>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item text-center text-muted italic">Aucun versement préalable.</li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-file-invoice-dollar fa-3x mb-3 text-light"></i>
+                        <p class="text-muted">Sélectionnez une prestation à gauche pour initialiser la facture.</p>
+                    </div>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <footer class="main-footer">
+        <div class="footer-left">Copyright &copy; 2026 <div class="bullet"></div> G-HOSPITAL</div>
+      </footer>
+    </div>
+  </div>
+
+  <script src="{% static 'back/assets/js/app.min.js' %}"></script>
+  <script src="{% static 'back/assets/bundles/select2/dist/js/select2.full.min.js' %}"></script>
+  <script src="{% static 'back/assets/js/scripts.js' %}"></script>
+
+  <script>
+    $(document).ready(function() {
+        $('.select2').select2();
+
+        // On définit le montant MAX possible
+        // Si c'est une facture existante, le max est 'reste_a_payer'
+        // Sinon, on utilise le mapping des prix des prestations
+        let maxAutorise = {% if facture %}{{ facture.reste_a_payer }}{% else %}0{% endif %};
+
+        const prixMapping = {
+            {% for p in prestations %}
+                "{{ p.id }}": {{ p.prix_fixe }},
+            {% endfor %}
+        };
+
+        const $prestationSelect = $('select[name="prestation"]');
+        const $montantInput = $('input[name="montant_verse"]');
+        const $infoBox = $('#prix-info-box');
+        const $prixValeur = $('#prix-valeur');
+        const $btnValider = $('#btn-valider');
+
+        function updatePrix() {
+            // Uniquement si on n'est pas sur une facture existante
+            {% if not facture %}
+                const selectedId = $prestationSelect.val();
+                maxAutorise = prixMapping[selectedId] || 0;
+
+                if (maxAutorise > 0) {
+                    $infoBox.removeClass('d-none');
+                    $prixValeur.text(maxAutorise + " CDF");
+                    if ($montantInput.val() === "") {
+                        $montantInput.val(maxAutorise);
+                    }
+                    checkMontant();
+                } else {
+                    $infoBox.addClass('d-none');
+                }
+            {% endif %}
+        }
+
+        function checkMontant() {
+            const montant = parseFloat($montantInput.val()) || 0;
+            if (montant > maxAutorise) {
+                $montantInput.addClass('is-invalid');
+                $btnValider.prop('disabled', true);
+                $('#montant-helper').text("Erreur : Le montant ("+montant+") dépasse la limite autorisée (" + maxAutorise + " CDF)").addClass('text-danger');
+            } else if (montant <= 0) {
+                $btnValider.prop('disabled', true);
+                $('#montant-helper').text("Veuillez saisir un montant valide.").removeClass('text-danger');
+            } else {
+                $montantInput.removeClass('is-invalid');
+                $btnValider.prop('disabled', false);
+                $('#montant-helper').text("Paiement autorisé.").removeClass('text-danger');
+            }
+        }
+
+        $prestationSelect.on('change', updatePrix);
+        $montantInput.on('input', checkMontant);
+
+        // Au chargement
+        if ($prestationSelect.val()) {
+            updatePrix();
+        }
+    });
+  </script>
+</body>
+</html>

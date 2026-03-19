@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fr">
+{% load static %}
+
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+  <title>Historique détaillé - {{ patient.noms }}</title>
+  
+  <link rel="stylesheet" href="{% static 'back/assets/css/app.min.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/bundles/datatables/datatables.min.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/bundles/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/css/components.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/css/custom.css' %}">
+</head>
+
+<body>
+  <div class="loader"></div>
+  <div id="app">
+    <div class="main-wrapper main-wrapper-1">
+      <div class="navbar-bg"></div>
+      {% include "back/query/nav.html" %}
+      {% include "back/query/sidebar.html" %}
+      
+      <div class="main-content">
+        <section class="section">
+          <div class="section-body">
+            <div class="row">
+              <div class="col-12">
+                <div class="card card-primary">
+                  <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4>Suivi des paiements : <span class="text-primary">{{ patient.noms }}</span></h4>
+                    <a href="{% url 'nouveau_paiement' patient_id=patient.id %}" class="btn btn-success icon-left">
+                      <i class="fas fa-plus"></i> Nouveau Paiement
+                    </a>
+                  </div>
+                  
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table class="table table-bordered table-md" id="tableExport">
+                        <thead>
+                          <tr class="bg-light">
+                            <th>Date Acte</th>
+                            <th>Prestation & Détails des Versements</th>
+                            <th>Total dû</th>
+                            <th>Cumul Versé</th>
+                            <th>Reste à payer</th>
+                            <th>Position / Flux</th>
+                            <th>Statut</th>
+                            <th class="text-center">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for f in factures %}
+                          <tr>
+                            <td>{{ f.date_emission|date:"d/m/Y" }}</td>
+                            <td>
+                              <strong>{{ f.prestation.libelle }}</strong> <br>
+                              <span class="badge badge-outline-info text-small mb-2">{{ f.nom_service }}</span>
+                              
+                              <div class="mt-2" style="border-left: 3px solid #6777ef; padding-left: 10px;">
+                                <small class="text-muted d-block mb-1 font-weight-bold">Historique des tranches :</small>
+                                {% for p in f.paiements.all %}
+                                  <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <div class="text-small">
+                                      <span class="text-success font-weight-600">+ {{ p.montant_verse }} CDF</span> 
+                                      <span class="text-muted"> (le {{ p.date_paiement|date:"d/m à H:i" }})</span>
+                                    </div>
+                                    <a href="{% url 'imprimer_recu_tranche' p.id %}" target="_blank" class="btn btn-sm btn-outline-info py-0 px-1" title="Imprimer ce ticket">
+                                      <i class="fas fa-print" style="font-size: 10px;"></i> Ticket
+                                    </a>
+                                  </div>
+                                {% empty %}
+                                  <span class="text-small text-danger italic">Aucun versement enregistré</span>
+                                {% endfor %}
+                              </div>
+                            </td>
+                            
+                            <td class="font-weight-bold text-dark">{{ f.total_a_payer }} CDF</td>
+                            <td class="text-primary font-weight-bold">{{ f.total_verse }} CDF</td>
+                            <td class="{% if f.reste_a_payer > 0 %}text-danger{% else %}text-success{% endif %} font-weight-bold">
+                                {{ f.reste_a_payer }} CDF
+                            </td>
+
+                            <td class="text-center">
+                              {% if not f.est_soldee %}
+                                <span class="badge badge-dark">En Caisse</span>
+                              {% else %}
+                                {% if f.consultation %}
+                                    {% if f.consultation.statut == 'TRIAGE' %}
+                                        <span class="badge badge-info">Au Triage</span>
+                                    {% elif f.consultation.statut == 'DOCTEUR' %}
+                                        <span class="badge badge-primary">Chez le Docteur</span>
+                                    {% else %}
+                                        <span class="badge badge-success">Terminé</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge badge-light">Payé (En attente)</span>
+                                {% endif %}
+                              {% endif %}
+                            </td>
+
+                            <td>
+                              {% if f.est_soldee %}
+                                <div class="badge badge-success">SOLDE</div>
+                              {% else %}
+                                <div class="badge badge-warning text-dark">DETTE</div>
+                              {% endif %}
+                            </td>
+
+                            <td class="text-center">
+                              <div class="btn-group">
+                                <a href="{% url 'imprimer_recu' f.id %}" target="_blank" class="btn btn-info btn-sm" title="Reçu Global">
+                                  <i class="fas fa-file-invoice"></i> Global
+                                </a>
+                                
+                                {% if not f.est_soldee %}
+                                <a href="{% url 'encaisser_prestation' facture_id=f.id %}" class="btn btn-primary btn-sm" title="Payer une tranche">
+                                  <i class="fas fa-hand-holding-usd"></i> Payer
+                                </a>
+                                {% endif %}
+                              </div>
+                            </td>
+                          </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  
+                  <div class="card-footer bg-whitesmoke">
+                    <a href="{% url 'patientRead' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Retour à la liste
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <footer class="main-footer">
+        <div class="footer-left">Copyright &copy; 2026 G-HOSPITAL</div>
+      </footer>
+    </div>
+  </div>
+
+  <script src="{% static 'back/assets/js/app.min.js' %}"></script>
+  <script src="{% static 'back/assets/bundles/datatables/datatables.min.js' %}"></script>
+  <script src="{% static 'back/assets/bundles/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js' %}"></script>
+  <script src="{% static 'back/assets/js/scripts.js' %}"></script>
+
+  <script>
+    $(document).ready(function() {
+      if ($.fn.DataTable.isDataTable('#tableExport')) {
+        $('#tableExport').DataTable().destroy();
+      }
+      $('#tableExport').DataTable({
+        dom: 'Bfrtip',
+        buttons: ['copy', 'excel', 'pdf', 'print'],
+        language: { "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/French.json" },
+        order: [[0, "desc"]] 
+      });
+    });
+  </script>
+</body>
+</html>

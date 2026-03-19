@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Ticket de Paiement #{{ paiement.id }}</title>
+    <style>
+        @page { size: 80mm 200mm; margin: 0; }
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            width: 70mm;
+            margin: 5mm auto;
+            font-size: 12px;
+            line-height: 1.2;
+        }
+        .text-center { text-align: center; }
+        .bold { font-weight: bold; }
+        .divider { border-top: 1px dashed #000; margin: 5px 0; }
+        .header { margin-bottom: 10px; }
+        .footer { margin-top: 15px; font-size: 10px; }
+        table { width: 100%; }
+        .flex { d-flex justify-content: space-between; }
+    </style>
+</head>
+<body onload="window.print();">
+
+    <div class="header text-center">
+        <div class="bold" style="font-size: 16px;">G-HOSPITAL</div>
+        <div>Reçu de Versement</div>
+        <div>Date: {{ paiement.date_paiement|date:"d/m/Y H:i" }}</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div><strong>Patient:</strong> {{ patient.noms }}</div>
+    <div><strong>Acte:</strong> {{ facture.prestation.libelle }}</div>
+    <div><strong>Caissier:</strong> {{ paiement.caissier }}</div>
+
+    <div class="divider"></div>
+
+    <div style="font-size: 14px;">
+        <strong>MONTANT VERSÉ : {{ paiement.montant_verse }} CDF</strong>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="bold">SITUATION DU COMPTE :</div>
+    <table>
+        <tr>
+            <td>Total de l'acte:</td>
+            <td align="right">{{ facture.total_a_payer }}</td>
+        </tr>
+        <tr>
+            <td>Déjà payé (Cumul):</td>
+            <td align="right">{{ facture.total_verse }}</td>
+        </tr>
+        <tr class="bold">
+            <td>RESTE À PAYER:</td>
+            <td align="right">{{ facture.reste_a_payer }} CDF</td>
+        </tr>
+    </table>
+
+    <div class="divider"></div>
+
+    <div class="footer text-center">
+        <p>Merci pour votre confiance.<br>
+        <em>Conservez ce ticket comme preuve.</em></p>
+        <p>{{ now|date:"Y" }} - Système G-Hospital</p>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Facture Globale #{{ facture.id }}</title>
+    <style>
+        body { font-family: 'Helvetica', Arial, sans-serif; color: #333; line-height: 1.5; margin: 40px; }
+        .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #6777ef; padding-bottom: 10px; }
+        .hospital-name { font-size: 24px; font-weight: bold; color: #6777ef; }
+        .facture-title { font-size: 18px; text-transform: uppercase; margin-top: 10px; }
+        
+        .info-section { display: flex; justify-content: space-between; margin-bottom: 30px; }
+        .info-box { width: 45%; }
+        
+        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        th { background-color: #f8f9fa; border-bottom: 2px solid #dee2e6; padding: 12px; text-align: left; }
+        td { padding: 12px; border-bottom: 1px solid #dee2e6; }
+        
+        .totals-container { float: right; width: 40%; }
+        .total-row { display: flex; justify-content: space-between; padding: 5px 0; }
+        .grand-total { font-size: 18px; font-weight: bold; color: #6777ef; border-top: 2px solid #6777ef; margin-top: 10px; padding-top: 10px; }
+        
+        .status-badge { display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: bold; text-transform: uppercase; }
+        .bg-success { background-color: #28a745; color: white; }
+        .bg-danger { background-color: #dc3545; color: white; }
+        
+        .footer { margin-top: 100px; text-align: center; font-size: 12px; color: #777; }
+        @media print { .no-print { display: none; } }
+    </style>
+</head>
+<body onload="window.print();">
+
+    <div class="header">
+        <div class="hospital-name">G-HOSPITAL</div>
+        <div class="facture-title">Facture de Prestation Médicale</div>
+        <div>N° {{ facture.id }} / {{ facture.date_emission|date:"Y" }}</div>
+    </div>
+
+    <div class="info-section">
+        <div class="info-box">
+            <strong>À l'attention de :</strong><br>
+            Nom : {{ patient.noms }}<br>
+            Date de naissance : {{ patient.date_naissance|date:"d/m/Y" }}<br>
+        </div>
+        <div class="info-box" style="text-align: right;">
+            <strong>Détails :</strong><br>
+            Date Emission : {{ facture.date_emission|date:"d/m/Y H:i" }}<br>
+            Service : {{ facture.nom_service }}
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Désignation de l'acte</th>
+                <th style="text-align: right;">Montant Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <strong>{{ facture.prestation.libelle }}</strong><br>
+                    <small>Détails des paiements effectués :</small>
+                    <ul style="font-size: 11px; margin-top: 5px; color: #555;">
+                        {% for p in facture.paiements.all %}
+                            <li>Le {{ p.date_paiement|date:"d/m/Y" }} : {{ p.montant_verse }} CDF</li>
+                        {% endfor %}
+                    </ul>
+                </td>
+                <td style="text-align: right; vertical-align: top;">{{ facture.total_a_payer }} CDF</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="totals-container">
+        <div class="total-row">
+            <span>Montant Total :</span>
+            <span>{{ facture.total_a_payer }} CDF</span>
+        </div>
+        <div class="total-row" style="color: #28a745;">
+            <span>Total déjà versé :</span>
+            <span>- {{ facture.total_verse }} CDF</span>
+        </div>
+        
+        <div class="total-row grand-total">
+            <span>RESTE À PAYER :</span>
+            <span>{{ facture.reste_a_payer }} CDF</span>
+        </div>
+
+        <div style="margin-top: 20px; text-align: right;">
+            Statut : 
+            {% if facture.est_soldee %}
+                <span class="status-badge bg-success">SOLDEE</span>
+            {% else %}
+                <span class="status-badge bg-danger">DETTE</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div style="clear: both;"></div>
+
+    <div class="footer">
+        <p>Signature & Sceau de la Comptabilité</p>
+        <br><br><br>
+        <p>G-HOSPITAL - Système de Gestion Hospitalière © 2026</p>
+    </div>
+
+    <button onclick="window.print()" class="no-print" style="margin-top: 20px; padding: 10px 20px; cursor: pointer;">Imprimer la facture</button>
+
+</body>
+</html>

@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models import Sum
 
 # Create your models here.
 
@@ -112,6 +113,9 @@ class Patient(models.Model):
     def __str__(self):
         return self.noms 
 
+    class Meta :
+        ordering = ['-id']
+
 # =========================================================================
 # creation de la table commune 
 # =========================================================================
@@ -149,4 +153,167 @@ class Stagiare(models.Model):
     def __str__(self):
         return self.nomStagiaires
 
+# ==============================================================================
+# prestations 
+# ==============================================================================
+class Prestation(models.Model):
+    libelle = models.CharField(max_length=100) # Ex: "Fiche", "Opération"
+    prix_fixe = models.DecimalField(max_digits=10, decimal_places=2)
 
+    def __str__(self):
+        return self.libelle 
+
+# ===============================================================================
+# facture 
+# =============================================================================
+
+from django.db.models import Sum
+
+from django.db import models
+from django.db.models import Sum
+
+
+# ============================================
+# facture 
+# ============================================
+
+class Facture(models.Model):
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    prestation = models.ForeignKey(Prestation, on_delete=models.CASCADE)
+    total_a_payer = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    date_emission = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def nom_service(self):
+        """Récupère dynamiquement le nom du service lié à la prestation"""
+        if self.prestation and hasattr(self.prestation, 'service'):
+            # On suppose que votre modèle Prestation a une ForeignKey vers Service
+            return self.prestation.service.nom
+        return "Service Non Défini"
+
+    @property
+    def total_verse(self):
+        """Calcule la somme de tous les paiements effectués"""
+        resultat = self.paiements.aggregate(Sum('montant_verse'))['montant_verse__sum']
+        return resultat or 0
+
+    @property
+    def reste_a_payer(self):
+        """Calcule le reste à percevoir"""
+        return self.total_a_payer - self.total_verse
+
+    @property
+    def est_soldee(self):
+        """Vérifie si la facture est totalement payée"""
+        return self.reste_a_payer <= 0
+
+    def save(self, *args, **kwargs):
+        """Sécurité : récupère le prix de la prestation si non précisé"""
+        if not self.total_a_payer and self.prestation:
+            self.total_a_payer = self.prestation.prix_fixe
+        super().save(*args, **kwargs)
+
+    class Meta:
+        ordering = ['-date_emission']
+        verbose_name = "Facture"
+        verbose_name_plural = "Factures"
+
+    def __str__(self):
+        # On inclut le service dans le nom pour plus de clarté
+        status = "SOLDEE" if self.est_soldee else f"RESTE: {self.reste_a_payer} CDF"
+        return f"Facture {self.id} [{self.nom_service}] - {self.patient.noms} ({status})"
+
+
+# ================================================================================
+# paiement
+# ================================================================================
+
+from django.db import transaction
+
+from django.db import models
+from django.db.models import Q
+
+class Paiement(models.Model):
+    facture = models.ForeignKey('Facture', on_delete=models.CASCADE, related_name='paiements')
+    montant_verse = models.DecimalField(max_digits=12, decimal_places=2)
+    date_paiement = models.DateTimeField(auto_now_add=True)
+    caissier = models.CharField(max_length=100)
+
+    def save(self, *args, **kwargs):
+        # 1. Enregistrement normal
+        super().save(*args, **kwargs)
+
+        # 2. Si la facture est soldée, on gère l'envoi au service
+        if self.facture.est_soldee:
+            from .models import Consultation, Fonction, Notification # Import local pour éviter les boucles
+            
+            # Vérifier si c'est une fiche et si la consultation n'existe pas déjà
+            exists = Consultation.objects.filter(facture=self.facture).exists()
+            
+            if not exists and "fiche" in self.facture.prestation.libelle.lower():
+                # Création de la ligne de consultation (Direction Triage)
+                consultation = Consultation.objects.create(
+                    patient=self.facture.patient,
+                    facture=self.facture,
+                    service=self.facture.prestation.service,
+                    statut='TRIAGE'
+                )
+
+                # --- LOGIQUE DE NOTIFICATION PAR SERVICE ---
+                # On cherche tous les agents (infirmiers/médecins) ACTIFS de ce service précis
+                service_concerne = self.facture.prestation.service
+                personnels_du_service = Fonction.objects.filter(
+                    service=service_concerne,
+                    statut_fonction='Actif'
+                )
+
+                # On crée une notification pour chaque membre du service
+                for p in personnels_du_service:
+                    Notification.objects.create(
+                        user=p.user_fonction, # L'utilisateur lié à la fonction
+                        titre="Nouveau Patient",
+                        message=f"Le patient {self.facture.patient.noms} a payé sa fiche. Il attend au triage.",
+                        service_origine=service_concerne
+                    )
+
+    def __str__(self):
+        return f"Paiement de {self.montant_verse} pour Facture #{self.facture.id}"
+# ==================================================================================
+# consultation 
+# ==================================================================================
+class Consultation(models.Model):
+    STATUT_CHOICES = [
+        ('TRIAGE', 'En attente Infirmerie'),
+        ('DOCTEUR', 'En attente Médecin'),
+        ('LABO', 'En attente Labo'),
+        ('TERMINE', 'Terminé'),
+    ]
+    
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    facture = models.OneToOneField(Facture, on_delete=models.CASCADE) # Lié à la fiche payée
+    service = models.ForeignKey(Service, on_delete=models.CASCADE) # Ex: Pédiatrie
+    
+    # Signes vitaux (remplis par l'infirmier)
+    temperature = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True)
+    poids = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    tension = models.CharField(max_length=20, null=True, blank=True)
+    
+    statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='TRIAGE')
+    date_creation = models.DateTimeField(auto_now_add=True)
+
+
+
+
+# ===============================================================================
+# notification (Comment l'infirmier reçoit-il le message ?)
+# ================================================================================
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE) # L'infirmier ou médecin
+    titre = models.CharField(max_length=100)
+    message = models.TextField()
+    date_envoi = models.DateTimeField(auto_now_add=True)
+    est_lu = models.BooleanField(default=False)
+    service_origine = models.ForeignKey('Service', on_delete=models.CASCADE, null=True)
+
+    def __str__(self):
+        return f"Alerte pour {self.user.username} - {self.titre}"
