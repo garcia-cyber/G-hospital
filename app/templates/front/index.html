@@ -1,384 +1,330 @@
 <!DOCTYPE html>
 {% load static %}
-<html lang="en">
+<html lang="fr">
 <head>
-	<meta charset="utf-8">
-	<title>Hopital </title>
-	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta name="keywords" content="">
-	<meta name="description" content="">
-    <!-- 
-	Workforce CSS Template
-	https://templatemo.com/tm-461-workforce
-    -->
-	<link href='http://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
-	<link rel="stylesheet" href="{% static 'front/css/animate.min.css'%}">
-	<link rel="stylesheet" href="{% static 'front/css/bootstrap.min.css'%}">
-	<link rel="stylesheet" href="{% static 'front/css/font-awesome.min.css'%}">		
-	<link rel="stylesheet" href="{% static 'front/css/templatemo-style.css'%}">
+    <meta charset="utf-8">
+    <title>G-HOSPITAL | Plateforme Médicale de Référence</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{% static 'front/css/animate.min.css' %}">
+    <link rel="stylesheet" href="{% static 'front/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="{% static 'front/css/templatemo-style.css' %}">
+
+    <style>
+        :root { 
+            --primary: #1a3a8f; /* Bleu Profond */
+            --accent: #00d2d3;  /* Cyan Médical */
+            --bg-light: #f8fafc;
+            --text-dark: #1e293b;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            color: var(--text-dark); 
+            background-color: var(--bg-light);
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, .navbar-brand { font-family: 'Montserrat', sans-serif; }
+
+        /* --- NAVBAR GLASSMORPHISM --- */
+        .custom-navbar { 
+            background: rgba(255, 255, 255, 0.9); 
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(0,0,0,0.05) !important; 
+            padding: 15px 0; 
+            transition: all 0.4s ease;
+        }
+
+        .navbar-brand { font-weight: 900 !important; color: var(--primary) !important; font-size: 24px; }
+        .navbar-brand span { color: var(--accent); }
+
+        .nav li a { 
+            color: var(--text-dark) !important; 
+            font-weight: 600; 
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+
+        .btn-nav-action {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white !important;
+            border-radius: 12px;
+            padding: 10px 25px !important;
+            margin-left: 15px;
+            box-shadow: 0 4px 15px rgba(26, 58, 143, 0.2);
+            transition: 0.3s;
+        }
+        .btn-nav-action:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 210, 211, 0.4); }
+
+        /* --- HERO SECTION --- */
+        #home { 
+            height: 100vh;
+            background: #000;
+            position: relative;
+        }
+        .hero-overlay {
+            position: absolute;
+            width: 100%; height: 100%;
+            background: linear-gradient(to right, rgba(26, 58, 143, 0.8), rgba(0,0,0,0.4));
+            z-index: 1;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            top: 35%;
+            color: white;
+        }
+        .hero-title { font-size: 65px; font-weight: 900; line-height: 1.1; margin-bottom: 20px; }
+        .hero-img-bg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover;
+            opacity: 0.7;
+        }
+
+        /* --- SERVICE CARDS (NEUMORPHISM) --- */
+        #service { padding: 100px 0; }
+        .service-box { 
+            background: #ffffff;
+            padding: 50px 35px; 
+            border-radius: 35px; 
+            border: 1px solid rgba(0,0,0,0.02);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin-bottom: 30px;
+        }
+        .service-box:hover { 
+            transform: translateY(-15px); 
+            background: var(--primary);
+            color: white;
+        }
+        .service-box i { font-size: 50px; color: var(--accent); margin-bottom: 25px; transition: 0.3s; }
+        .service-box:hover i { color: white; transform: scale(1.2); }
+
+        /* --- ABOUT & STATS --- */
+        #about { padding: 100px 0; background: white; }
+        .about-img-container { position: relative; }
+        .about-img { border-radius: 40px; box-shadow: 0 30px 60px rgba(0,0,0,0.15); width: 100%; }
+        
+        .stat-card {
+            background: var(--bg-light);
+            padding: 25px;
+            border-radius: 20px;
+            margin-top: 20px;
+            border-left: 5px solid var(--accent);
+        }
+
+        /* --- CONTACT --- */
+        #contact { padding: 100px 0; background: var(--bg-light); }
+        .contact-wrapper {
+            background: white;
+            border-radius: 40px;
+            overflow: hidden;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.08);
+        }
+        .contact-sidebar {
+            background: var(--primary);
+            color: white;
+            padding: 60px;
+        }
+        .contact-form { padding: 60px; }
+        .form-control {
+            border-radius: 15px;
+            padding: 15px 20px;
+            border: 1px solid #eee;
+            background: #fdfdfd;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        footer { background: #0f172a; color: rgba(255,255,255,0.5); padding: 80px 0 30px; }
+        footer h3 { color: white; margin-bottom: 25px; }
+    </style>
 </head>
+
 <body data-spy="scroll" data-offset="50" data-target=".navbar-collapse">
-	<div class="preloader">
-		<div class="sk-spinner sk-spinner-rotating-plane"></div>
-	</div>
-	<nav class="navbar navbar-fixed-top custom-navbar" role="navigation">
-		<div class="container">
-			<div class="navbar-header">
-				<button class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-					<span class="icon icon-bar"></span>
-					<span class="icon icon-bar"></span>
-					<span class="icon icon-bar"></span>
-				</button>
-				<a href="#" class="navbar-brand">Hopital</a>
-			</div>
-			<div class="collapse navbar-collapse">
-				<ul class="nav navbar-nav navbar-right">
-					<li><a href="#home" class="smoothScroll ">Home</a></li>
-					<li><a href="#service" class="smoothScroll">Services</a></li>
-					<li><a href="#about" class="smoothScroll">About</a></li>
-					<li><a href="#portfolio" class="smoothScroll">Portfolio</a></li>
-					<li><a href="#contact" class="smoothScroll">Contact</a></li>
 
-					{% if user.is_authenticated %}
-						<li><a href="{% url 'panel' %}" class="smoothScroll">admin</a></li>
-						<li><a href="{% url 'deco' %}" class="smoothScroll">deconnexion</a></li>
-					{% else %}
+    <div class="preloader"><div class="sk-spinner sk-spinner-pulse" style="background-color: var(--accent);"></div></div>
 
-						<li><a href="{% url 'login'%}" class="smoothScroll">Login</a></li>
+    <nav class="navbar navbar-fixed-top custom-navbar">
+        <div class="container">
+            <div class="navbar-header">
+                <button class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon icon-bar"></span><span class="icon icon-bar"></span><span class="icon icon-bar"></span>
+                </button>
+                <a href="#" class="navbar-brand">G-HOSPITAL<span>.</span></a>
+            </div>
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="#home" class="smoothScroll">Accueil</a></li>
+                    <li><a href="#service" class="smoothScroll">Services</a></li>
+                    <li><a href="#about" class="smoothScroll">L'Hôpital</a></li>
+                    <li><a href="#contact" class="smoothScroll">Contact</a></li>
+                    
+                    {% if user.is_authenticated %}
+                        <li><a href="{% url 'panel' %}" class="btn-nav-action">TABLEAU DE BORD</a></li>
+                    {% else %}
+                        <li><a href="{% url 'login' %}" class="btn-nav-action">CONNEXION</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-					{% endif %}
-				</ul>
-			</div>
-		</div>
-	</nav>
-	<!-- start home -->
-	<section id="home">
-		<div class="overlay">
-			<div class="flexslider">
-				<ul class="slides">
-					<li>
-						<img src="{% static 'front/images/slider/6.jpg'%}" alt="Slide 1">
-						<div class="slider-caption">
-							<div class="templatemo_homewrapper">
-								<h3 class="wow bounceIn">hopital</h3>
-								<h1 class="wow bounce">Digital Studio</h1>
-								<h2>
-									<span class="wow fadeIn" data-wow-delay="0.3s">WEB,</span>
-									<span class="wow fadeIn" data-wow-delay="0.6s">MOBILE,</span>
-									<span class="wow fadeIn" data-wow-delay="0.9s">UX DESIGN</span>
-								</h2>
-								<a href="#portfolio" class="smoothScroll templatemo-slider-btn btn btn-default">Learn More</a>
-							</div>
-						</div>
-					</li>
-					<li>
-						<img src="{% static 'front/images/slider/6.jpg'%}" alt="Slide 2">
-						<div class="slider-caption">
-							<div class="templatemo_homewrapper">
-                            	<h2>CSS Flexbox</h2>
-								<h1>Flex Slider</h1>
-								<h3>Work on all modern browsers, IE 10+</h3>
-								<a href="#about" class="smoothScroll templatemo-slider-btn btn btn-default">Meet Our Team</a>	
-							</div>
-						</div>
-					</li>
-				</ul>
-			</div>
-		</div>
-	</section>
-	<!-- end home -->
-	<!-- start service -->
-	<section id="service">
-		<div class="container">
-			<div class="row">
-				<div class="col-md-12 text-center wow bounceIn">
-					<h2>Services</h2>
-					<hr>
-					<h4>we specialize in web and mobile</h4>
-				</div>
-				<div class="col-md-6 col-sm-6">
-					<div class="media">
-						<div class="media-object media-left wow fadeIn" data-wow-delay="0.6s">
-							<i class="fa fa-laptop"></i>
-						</div>
-						<div class="media-body">
-							<h3 class="media-heading">Website Re-designed</h3>
-							<p>Workforce HTML CSS Template is a mobile friendly site design layout with animated transitions. You can feel free to download and edit this for your sites.</p>
-						</div>
-					</div>
-				</div>
-				<div class="col-md-6 col-sm-6">
-					<div class="media">
-						<div class="media-object media-left wow fadeIn" data-wow-delay="0.6s">
-							<i class="fa fa-android"></i>
-						</div>
-						<div class="media-body">
-							<h3 class="media-heading">New Mobile App</h3>
-							<p>Please spread a word to your friends about templatemo site. It would be helpful. Credit goes to <a rel="nofollow noopener" href="https://pixabay.com">Pixabay</a> for images used in this template.</p>
-						</div>
-					</div>
-				</div>
-				<div class="col-md-6 col-sm-6">
-					<div class="media">
-						<div class="media-object media-left wow fadeIn" data-wow-delay="0.6s">
-							<i class="fa fa-paper-plane"></i>
-						</div>
-						<div class="media-body">
-							<h3 class="media-heading">Digital Marketing</h3>
-							<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet. Dolore magna aliquam erat volutpat.</p>
-						</div>
-					</div>
-				</div>
-				<div class="col-md-6 col-sm-6">
-					<div class="media">
-						<div class="media-object media-left wow fadeIn" data-wow-delay="0.6s">
-							<i class="fa fa-html5"></i>
-						</div>
-						<div class="media-body">
-							<h3 class="media-heading">Coding HTML5 &amp; CSS3</h3>
-							<p>This is a CSS layout with Bootstrap v3.3.4 kit. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt.</p>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
-	<!-- end service -->
-	<!-- start divider -->
-	<div class="divider">
-		<div class="overlay">
-			<div class="container">
-				<div class="row">
-					<div class="divider-des">
-						<h3 class="text-uppercase">The best minimal corporate page</h3>
-						<p>This is fully responsive, clean, modern, creative, and minimal.</p>
-						<button class="btn btn-default text-uppercase">Download</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<!-- end divider -->
-	<!-- start about -->
-	<section id="about">
-		<div class="container">
-			<div class="row">
-				<div class="col-md-12 wow bounceIn">
-					<h2>About</h2>
-					<hr>
-					<h4>some things about our past...</h4>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-md-6 col-sm-6 wow fadeInLeft templatemo-about-left" data-wow-delay="0.3s">
-					<h3 class="about-title">Studio History</h3>
-					<p>Phasellus tempus malesuada congue. Sed id est tincidunt, iaculis nulla vel, sodales metus. Morbi interdum accumsan augue, in accumsan neque lacinia sed. Fusce cursus eu ligula ut gravida. Ut tristique hendrerit bibendum. Suspendisse euismod sit amet quam et luctus.</p>
-                    <p>Nulla viverra diam sed justo vehicula, non venenatis massa gravida. Nunc efficitur et quam non tempor. Nullam nec nisl eget est ultrices elementum nec vel nisl. Cras vestibulum nisl vel justo tempor, ut lacinia est accumsan.</p>
-				</div>
-				<div class="col-md-6 col-sm-6 wow fadeInRight" data-wow-delay="0.3s">
-					<span class="text-uppercase">BOOTSTRAP 100%</span>
-					<div class="progress">
-						<div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 100%;"></div>
-					</div>
-					<span class="text-uppercase">HTML5 &AMP; CSS3 90%</span>
-					<div class="progress">
-						<div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100" style="width: 90%;"></div>
-					</div>
-					<span class="text-uppercase">Wordpress 65%</span>
-					<div class="progress">
-						<div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" style="width: 65%;"></div>
-					</div>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-md-4 col-sm-4 wow fadeInUp" data-wow-delay="0.6s">
-					<div class="about-wrapper">
-						<img src="images/team-img-1.png" class="img-responsive" alt="about img">
-						<h3>Cindy Davis</h3>
-						<h5>Founder &amp; Director</h5>
-					</div>
-				</div>
-				<div class="col-md-4 col-sm-4 wow fadeInUp" data-wow-delay="0.6s">
-					<div class="about-wrapper">
-						<img src="images/team-img-2.png" class="img-responsive" alt="about img">
-						<h3>Jenny Meno</h3>
-						<h5>Creative Manager</h5>
-					</div>
-				</div>
-				<div class="col-md-4 col-sm-4 wow fadeInUp" data-wow-delay="0.6s">
-					<div class="about-wrapper">
-						<img src="images/team-img-3.png" class="img-responsive" alt="about img">
-						<h3>Catherine Barkley</h3>
-						<h5>Co-Founder &amp; Designer</h5>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
-	<!-- end about -->
-	<!-- start portfolio -->
-	<section id="portfolio">
-		<div class="container">
-			<div class="row">
-				<div class="col-md-12">
-					<div class="wow bounceIn">
-						<h2 class="wow bounceIn">Portfolio</h2>
-						<hr>
-						<h4>our lastest projects in the past 6 months</h4>
-					</div>
-					<div class="iso-section wow fadeIn" data-wow-delay="0.6s">
+    <section id="home">
+        <img src="{% static 'front/images/slider/7.jpg' %}" class="hero-img-bg" alt="G-Hospital">
+        <div class="hero-overlay"></div>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8 hero-content">
+                    <h1 class="hero-title wow fadeInUp" data-wow-delay="0.4s">L'Excellence Médicale<br>à l'ère du Digital.</h1>
+                    <p class="lead wow fadeInUp" data-wow-delay="0.6s" style="font-size: 20px; opacity: 0.9; margin-bottom: 35px;">
+                        Simplifiez votre parcours de santé. Prenez rendez-vous, consultez vos résultats <br>et communiquez avec nos experts en toute sécurité.
+                    </p>
+                    <div class="wow fadeInUp" data-wow-delay="0.8s">
+                        <a href="#service" class="btn btn-lg smoothScroll" style="background: var(--accent); color: white; border-radius: 12px; padding: 18px 45px; font-weight: 700; border: none;">NOS DÉPARTEMENTS</a>
+                        <a href="#contact" class="btn btn-lg smoothScroll" style="background: transparent; color: white; border: 2px solid white; border-radius: 12px; margin-left: 20px; padding: 16px 40px;">URGENCES 24/7</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-						<ul class="filter-wrapper clearfix">
-							<li><a href="#" data-filter="*" class="selected opc-main-bg">All</a></li>
-							<li><a href="#" class="opc-main-bg" data-filter=".graphic">Graphic</a></li>
-							<li><a href="#" class="opc-main-bg" data-filter=".photoshop">Photoshop</a></li>
-							<li><a href="#" class="opc-main-bg" data-filter=".wallpaper">Wallpaper</a></li>
-						</ul>
+    <section id="service">
+        <div class="container text-center">
+            <h2 class="wow fadeIn" style="font-weight: 900; margin-bottom: 60px; font-size: 36px;">Spécialités de Pointe</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="service-box wow fadeInUp" data-wow-delay="0.2s">
+                        <i class="fa fa-user-md"></i>
+                        <h3>Consultations</h3>
+                        <p>Médecine générale et spécialisée avec les meilleurs praticiens du pays.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="service-box wow fadeInUp" data-wow-delay="0.4s">
+                        <i class="fa fa-heartbeat"></i>
+                        <h3>Cardiologie</h3>
+                        <p>Équipements de dernière génération pour le suivi de votre santé cardiaque.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="service-box wow fadeInUp" data-wow-delay="0.6s">
+                        <i class="fa fa-flask"></i>
+                        <h3>Laboratoire</h3>
+                        <p>Analyses biologiques rapides avec envoi automatique des résultats sur votre espace.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-						<div class="iso-box-section">
-							<div class="iso-box-wrapper col4-iso-box">
+    <section id="about">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 wow fadeInLeft">
+                    <div class="about-img-container">
+                        <img src="{% static 'front/images/slider/8.jpg' %}" class="about-img" alt="Hospital interior">
+                    </div>
+                </div>
+                <div class="col-md-6" style="padding-left: 40px;">
+                    <h2 style="font-weight: 900; font-size: 40px;">Pourquoi G-Hospital ?</h2>
+                    <p class="lead" style="margin: 25px 0; color: #64748b;">Nous fusionnons l'hospitalité humaine avec l'efficacité de la technologie moderne.</p>
+                    
+                    <div class="stat-card">
+                        <h4 style="font-weight: 700; color: var(--primary);">Digitalisation Complète</h4>
+                        <p>Plus de dossiers perdus. Tout votre historique médical est accessible dans votre poche.</p>
+                    </div>
+                    <div class="stat-card" style="border-color: var(--primary);">
+                        <h4 style="font-weight: 700; color: var(--primary);">Précision Diagnostique</h4>
+                        <p>Nos équipements d'imagerie et de labo répondent aux standards internationaux.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-								<div class="iso-box graphic photoshop wallpaper col-md-4 col-sm-6 col-xs-12">
-									<div class="portfolio-thumb">
-										<img src="images/portfolio-img-1.jpg" class="fluid-img" alt="portfolio img">
-										<div class="portfolio-overlay">
-											<div class="portfolio-description">
-												<a href="#" class="fa fa-search"></a>
-												<a href="#" class="fa fa-link"></a>
-												<h4>Project title</h4>
-												<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonumm.</p>	
-											</div>											
-										</div>
-									</div>
-								</div>
-								<div class="iso-box graphic wallpaper col-md-4 col-sm-6 col-xs-12">
-									<div class="portfolio-thumb">
-										<img src="images/portfolio-img-2.jpg" class="fluid-img" alt="portfolio img">
-										<div class="portfolio-overlay">
-											<div class="portfolio-description">
-												<a href="#" class="fa fa-search"></a>
-												<a href="#" class="fa fa-link"></a>
-												<h4>Project title</h4>
-												<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonumm.</p>
-											</div>
-										</div>
-									</div>
-								</div>
-								<div class="iso-box wallpaper col-md-4 col-sm-6 col-xs-12">
-									<div class="portfolio-thumb">
-										<img src="images/portfolio-img-3.jpg" class="fluid-img" alt="portfolio img">
-										<div class="portfolio-overlay">
-											<div class="portfolio-description">
-												<a href="#" class="fa fa-search"></a>
-												<a href="#" class="fa fa-link"></a>
-												<h4>Project title</h4>
-												<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonumm.</p>
-											</div>
-										</div>
-									</div>
-								</div>
-								<div class="iso-box graphic col-md-4 col-sm-6 col-xs-12">
-									<div class="portfolio-thumb">
-										<img src="images/portfolio-img-4.jpg" class="fluid-img" alt="portfolio img">
-										<div class="portfolio-overlay">
-											<div class="portfolio-description">
-												<a href="#" class="fa fa-search"></a>
-												<a href="#" class="fa fa-link"></a>
-												<h4>Project title</h4>
-												<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonumm.</p>
-											</div>
-										</div>
-									</div>
-								</div>
-								<div class="iso-box wallpaper col-md-4 col-sm-6 col-xs-12">
-									<div class="portfolio-thumb">
-										<img src="images/portfolio-img-5.jpg" class="fluid-img" alt="portfolio img">
-										<div class="portfolio-overlay">
-											<div class="portfolio-description">
-												<a href="#" class="fa fa-search"></a>
-												<a href="#" class="fa fa-link"></a>
-												<h4>Project title</h4>
-												<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonumm.</p>
-											</div>
-										</div>
-									</div>
-								</div>
-								<div class="iso-box graphic photoshop col-md-4 col-sm-6 col-xs-12">
-									<div class="portfolio-thumb">
-										<img src="images/portfolio-img-6.jpg" class="fluid-img" alt="portfolio img">
-										<div class="portfolio-overlay">
-											<div class="portfolio-description">
-												<a href="#" class="fa fa-search"></a>
-												<a href="#" class="fa fa-link"></a>
-												<h4>Project title</h4>
-												<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonumm.</p>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
-	<!-- end portfolio -->
-	<!-- start contact -->
-	<section id="contact">
-		<div class="container">
-			<div class="row">
-				<div class="col-md-12">
-					<div class="wow bounceIn">
-						<h2 class="wow bounceIn">Contact</h2>
-						<hr>
-						<h4>Talk to us for more assistance...</h4>
-					</div>					
-					<form action="#" method="post" role="form">
-						<div class="col-md-4 col-sm-4 wow fadeIn" data-wow-delay="0.3s">
-							<input type="text" placeholder="Name" class="form-control">
-						</div>
-						<div class="col-md-4 col-sm-4 wow fadeIn" data-wow-delay="0.3s">
-							<input type="email" placeholder="Email" class="form-control">
-						</div>
-						<div class="col-md-4 col-sm-4 wow fadeIn" data-wow-delay="0.3s">
-							<input type="text" placeholder="Subject" class="form-control">
-						</div>
-						<div class="col-md-12 col-sm-12 wow fadeIn" data-wow-delay="0.9s">
-							<textarea class="form-control" rows="5" placeholder="Message"></textarea>
-						</div>
-						<div class="col-md-offset-3 col-sm-offset-3 col-sm-6 col-md-6 wow fadeIn" data-wow-delay="0.3s">
-							<input type="submit" value="Send Message" class="form-control">
-						</div>
-					</form>
-				</div>
-			</div>
-		</div>
-	</section>
-	<!-- end contact -->
-	<footer>
-		<div class="container">
-			<div class="row">
-				<div class="col-md-12">
-					<ul class="social-icon wow fadeIn" data-wow-delay="0.3s">
-						<li><a href="#" class="fa fa-facebook"></a></li>
-						<li><a href="#" class="fa fa-twitter"></a></li>
-						<li><a href="#" class="fa fa-instagram"></a></li>
-					</ul>
-					<p class="wow bounceIn">Copyright &copy; 2018 <span>Workforce</span> Studio 
-                    . Design: <a rel="nofollow noopener" href="https://templatemo.com"><span>templatemo</span></a></p>
-				</div>
-			</div>
-		</div>
-	</footer>
-	<script src="{% static 'front/js/jquery.js'%}"></script>
-	<script src="{% static 'front/js/bootstrap.min.js'%}"></script>
-	<script src="{% static 'front/js/jquery.flexslider.js'%}"></script>
-	<script src="{% static 'front/js/isotope.js'%}"></script>
-	<script src="{% static 'front/js/imagesloaded.min.js'%}"></script>
-	<script src="{% static 'front/js/smoothscroll.js'%}"></script>
-	<script src="{% static 'front/js/wow.min.js'%}"></script>
-	<script src="{% static 'front/js/custom.js'%}"></script>
+    <section id="contact">
+        <div class="container">
+            <div class="contact-wrapper row">
+                <div class="col-md-5 contact-sidebar wow fadeInLeft">
+                    <h2 style="font-weight: 900; color: white;">Parlons de votre santé.</h2>
+                    <p style="opacity: 0.7; margin: 20px 0 40px;">Une question ? Un besoin urgent ? Notre équipe est disponible en permanence.</p>
+                    <div style="margin-bottom: 20px;"><i class="fa fa-phone" style="color:var(--accent)"></i> &nbsp; +243 812 345 678</div>
+                    <div style="margin-bottom: 20px;"><i class="fa fa-envelope" style="color:var(--accent)"></i> &nbsp; contact@g-hospital.cd</div>
+                    <div style="margin-bottom: 20px;"><i class="fa fa-map-marker" style="color:var(--accent)"></i> &nbsp; Avenue de la Justice, Gombe, Kinshasa</div>
+                </div>
+                <div class="col-md-7 contact-form wow fadeInRight">
+                    <form action="#" method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Nom complet</label>
+                                <input type="text" class="form-control" placeholder="Ex: Jean Mukendi">
+                            </div>
+                            <div class="col-md-6">
+                                <label>Email</label>
+                                <input type="email" class="form-control" placeholder="votre@email.com">
+                            </div>
+                        </div>
+                        <label>Sujet</label>
+                        <select class="form-control">
+                            <option>Demande de rendez-vous</option>
+                            <option>Information Laboratoire</option>
+                            <option>Recrutement / Stage</option>
+                        </select>
+                        <label>Votre message</label>
+                        <textarea class="form-control" rows="5" placeholder="Comment pouvons-nous vous aider ?"></textarea>
+                        <button type="submit" class="btn-nav-action" style="width: 100%; padding: 20px !important; margin-left: 0; font-size: 16px;">ENVOYER LE MESSAGE</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="text-center">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <h3>G-HOSPITAL<span>.</span></h3>
+                    <div class="social-icons" style="margin-bottom: 30px;">
+                        <a href="#" class="fa fa-facebook" style="color:white; font-size:24px; margin: 0 15px;"></a>
+                        <a href="#" class="fa fa-twitter" style="color:white; font-size:24px; margin: 0 15px;"></a>
+                        <a href="#" class="fa fa-linkedin" style="color:white; font-size:24px; margin: 0 15px;"></a>
+                    </div>
+                    <p>Copyright &copy; 2026 G-HOSPITAL. Conçu pour l'excellence médicale en RDC.</p>
+                    <p style="font-size: 11px; opacity: 0.5;">Politique de confidentialité | Mentions Légales</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{% static 'front/js/jquery.js' %}"></script>
+    <script src="{% static 'front/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'front/js/wow.min.js' %}"></script>
+    <script src="{% static 'front/js/smoothscroll.js' %}"></script>
+    <script>
+        new WOW().init();
+        
+        // Cacher le preloader
+        $(window).on('load', function() {
+            $('.preloader').fadeOut('slow');
+        });
+
+        // Animation de la Navbar au scroll
+        $(window).scroll(function() {
+            if ($(this).scrollTop() > 100) {
+                $('.custom-navbar').css('padding', '10px 0');
+            } else {
+                $('.custom-navbar').css('padding', '15px 0');
+            }
+        });
+    </script>
 </body>
 </html>

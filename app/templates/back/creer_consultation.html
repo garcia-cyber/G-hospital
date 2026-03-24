@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+    <title>G-HOSPITAL | Triage Patient</title>
+    
+    <link rel="stylesheet" href="{% static 'back/assets/css/app.min.css' %}">
+    <link rel="stylesheet" href="{% static 'back/assets/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'back/assets/css/components.css' %}">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css">
+</head>
+
+<body>
+    <div id="app">
+        <div class="main-wrapper main-wrapper-1">
+            {% include "back/query/nav.html" %}
+            {% include "back/query/sidebar.html" %}
+
+            <div class="main-content">
+                <section class="section">
+                    <div class="section-header">
+                        <div class="section-header-back">
+                            <a href="{% url 'panel' %}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
+                        </div>
+                        <h1>Triage & Signes Vitaux</h1>
+                    </div>
+
+                    <div class="section-body">
+                        <div class="row">
+                            <div class="col-12 col-md-4 col-lg-4">
+                                <div class="card profile-widget">
+                                    <div class="profile-widget-header">
+                                        <img alt="image" src="{% static 'back/assets/img/avatar/avatar-1.png' %}" class="rounded-circle profile-widget-picture">
+                                        <div class="profile-widget-items">
+                                            <div class="profile-widget-item">
+                                                <div class="profile-widget-item-label">ID Patient</div>
+                                                <div class="profile-widget-item-value">#{{ facture.patient.id }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="profile-widget-description">
+                                        <div class="profile-widget-name text-uppercase">{{ facture.patient.noms }} <div class="text-muted d-inline font-weight-normal"><div class="slash"></div> Patient</div></div>
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item"><strong>Service :</strong> {{ facture.prestation.service.nom_service }}</li>
+                                            <li class="list-group-item"><strong>Prestation :</strong> {{ facture.prestation.libelle }}</li>
+                                            <li class="list-group-item text-success"><strong>Statut Facture :</strong> <i class="fas fa-check-circle"></i> PAYÉE</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-8 col-lg-8">
+                                <form method="POST" class="needs-validation" novalidate="">
+                                    {% csrf_token %}
+                                    <div class="card shadow-sm">
+                                        <div class="card-header border-bottom">
+                                            <h4>Saisie des Constantes</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="form-group col-md-6">
+                                                    <label><i class="fas fa-thermometer-half text-danger"></i> Température (°C)</label>
+                                                    <input type="number" name="temperature" step="0.1" class="form-control" placeholder="Ex: 37.5" required>
+                                                    <div class="invalid-feedback">Veuillez saisir la température.</div>
+                                                </div>
+
+                                                <div class="form-group col-md-6">
+                                                    <label><i class="fas fa-heartbeat text-warning"></i> Tension Artérielle</label>
+                                                    <input type="text" name="tension" class="form-control" placeholder="Ex: 12/8" required>
+                                                    <div class="invalid-feedback">Veuillez saisir la tension.</div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="form-group col-md-6">
+                                                    <label><i class="fas fa-weight text-info"></i> Poids (kg)</label>
+                                                    <input type="number" name="poids" step="0.1" class="form-control" placeholder="Ex: 70" required>
+                                                    <div class="invalid-feedback">Veuillez saisir le poids.</div>
+                                                </div>
+
+                                                <div class="form-group col-md-6">
+                                                    <label><i class="fas fa-ruler-vertical"></i> Taille (cm)</label>
+                                                    <input type="number" name="taille" class="form-control" placeholder="Ex: 175">
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label><i class="fas fa-comment-medical"></i> Observations particulières (Optionnel)</label>
+                                                <textarea name="observations" class="form-control" style="height: 100px;" placeholder="Signes visibles, douleurs exprimées..."></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer bg-whitesmoke text-right">
+                                            <a href="{% url 'panel' %}" class="btn btn-secondary mr-2">Annuler</a>
+                                            <button type="submit" class="btn btn-primary btn-lg">
+                                                <i class="fas fa-paper-plane"></i> Envoyer au Médecin
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <footer class="main-footer">
+                <div class="footer-left">Copyright &copy; 2026 G-HOSPITAL</div>
+            </footer>
+        </div>
+    </div>
+
+    <script src="{% static 'back/assets/js/app.min.js' %}"></script>
+    <script src="{% static 'back/assets/js/scripts.js' %}"></script>
+</body>
+</html>

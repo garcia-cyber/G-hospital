@@ -1,226 +1,240 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 {% load static %}
-
 <head>
-  <meta charset="UTF-8">
-  <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
-  <title>Encaissement - {{ patient.noms }}</title> 
-  <link rel="stylesheet" href="{% static 'back/assets/css/app.min.css' %}">
-  <link rel="stylesheet" href="{% static 'back/assets/bundles/select2/dist/css/select2.min.css' %}">
-  <link rel="stylesheet" href="{% static 'back/assets/css/style.css' %}">
-  <link rel="stylesheet" href="{% static 'back/assets/css/components.css' %}">
-  <link rel="stylesheet" href="{% static 'back/assets/css/custom.css' %}">
-  <link rel='shortcut icon' type='image/x-icon' href="{% static 'back/assets/img/favicon.ico' %}" />
-  <style>
-    /* Style pour le champ désactivé visuellement */
-    .readonly-select { pointer-events: none; background-color: #e9ecef; opacity: 0.8; }
-  </style>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+    <title>Encaissement | G-HOSPITAL</title>
+    
+    <link rel="stylesheet" href="{% static 'back/assets/css/app.min.css' %}">
+    <link rel="stylesheet" href="{% static 'back/assets/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'back/assets/css/components.css' %}">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css">
+
+    <style>
+        .card-finance { border-radius: 15px; border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        .input-lg-custom { 
+            font-size: 26px !important; 
+            height: 65px !important; 
+            font-weight: bold; 
+            text-align: center; 
+            color: #6777ef; 
+            border: 2px solid #6777ef; 
+            border-radius: 10px; 
+        }
+        .label-custom { font-weight: 800; text-transform: uppercase; color: #636e72; letter-spacing: 1px; font-size: 11px; }
+        .summary-box { background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #e9ecef; }
+        .alert-info-custom { background-color: #e3f2fd; border-left: 5px solid #2196f3; color: #0d47a1; }
+        .is-invalid-custom { border-color: #fc544b !important; color: #fc544b !important; }
+    </style>
 </head>
 
 <body>
-  <div class="loader"></div>
-  <div id="app">
-    <div class="main-wrapper main-wrapper-1">
-      <div class="navbar-bg"></div>
-      
-      {% include "back/query/nav.html" %}
-      {% include "back/query/sidebar.html" %}
-
-      <div class="main-content">
-        <section class="section">
-          <div class="section-header">
-            <h1>Gestion des Encaissements</h1>
-          </div>
-
-          <div class="section-body">
-            <h2 class="section-title">Patient : {{ patient.noms }}</h2>
+    <div id="app">
+        <div class="main-wrapper main-wrapper-1">
             
-            <div class="row">
-              <div class="col-12 col-md-5">
-                <div class="card card-primary">
-                  <div class="card-header">
-                    <h4>{% if facture %}Compléter Paiement{% else %}Nouvel Acte Médical{% endif %}</h4>
-                  </div>
-                  <div class="card-body">
-                    
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible show fade">
-                              <div class="alert-body">
-                                <button class="close" data-dismiss="alert"><span>&times;</span></button>
-                                {{ message }}
-                              </div>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
+            {% include "back/query/nav.html" %}
+            {% include "back/query/sidebar.html" %}
 
-                    <div id="prix-info-box" class="alert alert-info shadow-sm {% if not facture %}d-none{% endif %}">
-                        <div class="d-flex justify-content-between">
-                            <span>{% if facture %}Reste à payer :{% else %}Prix de la prestation :{% endif %}</span>
-                            <b id="prix-valeur">{% if facture %}{{ facture.reste_a_payer }}{% else %}0{% endif %} CDF</b>
-                        </div>
+            <div class="main-content">
+                <section class="section">
+                    <div class="section-header">
+                        <h1><i class="fas fa-cash-register mr-2 text-success"></i> Encaissement</h1>
                     </div>
 
-                    <form method="POST" class="needs-validation" novalidate="">
-                      {% csrf_token %}
-                      
-                      <div class="form-group">
-                        <label>Acte Médical</label>
-                        <div class="{% if facture %}readonly-select{% endif %}">
-                            {{ form.prestation }}
-                        </div>
-                        {% if facture %}
-                        <small class="text-muted italic">L'acte est déjà fixé pour cette facture.</small>
+                    <div class="section-body">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible show fade">
+                                    <div class="alert-body">
+                                        <button class="close" data-dismiss="alert"><span>&times;</span></button>
+                                        {{ message }}
+                                    </div>
+                                </div>
+                            {% endfor %}
                         {% endif %}
-                        <div class="invalid-feedback">Veuillez choisir une prestation.</div>
-                      </div>
 
-                      <div class="form-group">
-                        <label>Montant à verser (CDF)</label>
-                        <div class="input-group">
-                          <div class="input-group-prepend">
-                            <div class="input-group-text"><i class="fas fa-money-bill-wave"></i></div>
-                          </div>
-                          {{ form.montant_verse }}
-                        </div>
-                        <small id="montant-helper" class="form-text text-muted">Saisissez le montant perçu.</small>
-                      </div>
+                        <div class="row justify-content-center">
+                            <div class="col-lg-8">
+                                <div class="card card-finance">
+                                    <div class="card-header border-bottom d-flex justify-content-between">
+                                        <h4>Patient : <span class="text-primary">{{ patient.noms }}</span></h4>
+                                        <span class="badge badge-secondary">ID #{{ patient.id }}</span>
+                                    </div>
+                                    
+                                    <div class="card-body">
+                                        <div class="summary-box">
+                                            <div class="row text-center">
+                                                <div class="col-4">
+                                                    <small class="label-custom d-block">Total Fiche</small>
+                                                    <span class="h6 font-weight-bold" id="display-total">
+                                                        {% if facture %}{{ facture.total_a_payer }}{% else %}0{% endif %} FC
+                                                    </span>
+                                                </div>
+                                                <div class="col-4 border-left border-right">
+                                                    <small class="label-custom d-block text-success">Déjà Versé</small>
+                                                    <span class="h6 font-weight-bold text-success">
+                                                        {{ facture.total_verse|default:"0" }} FC
+                                                    </span>
+                                                </div>
+                                                <div class="col-4">
+                                                    <small class="label-custom d-block text-danger">Reste à Payer</small>
+                                                    <span class="h6 font-weight-bold text-danger" id="display-reste">
+                                                        {% if facture %}{{ facture.reste_a_payer }}{% else %}0{% endif %} FC
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
 
-                      <div class="form-group">
-                        <button type="submit" id="btn-valider" class="btn btn-primary btn-lg btn-block shadow-primary">
-                          Confirmer l'encaissement
-                        </button>
-                        <a href="{% url 'liste_factures_patient' patient.id %}" class="btn btn-secondary btn-block mt-2">
-                          Voir l'historique
-                        </a>
-                      </div>
-                    </form>
-                  </div>
-                </div>
-              </div>
+                                        <form method="POST" action="." id="payment-form">
+                                            {% csrf_token %}
+                                            
+                                            <div class="form-group mb-4">
+                                                <label class="label-custom">Sélectionner la Prestation / Fiche</label>
+                                                {{ form.prestation }}
+                                                {% if form.prestation.errors %}
+                                                    <div class="text-danger small mt-1">{{ form.prestation.errors }}</div>
+                                                {% endif %}
+                                            </div>
 
-              <div class="col-12 col-md-7">
-                <div class="card">
-                  <div class="card-header">
-                    <h4>Détails Facture Courante</h4>
-                  </div>
-                  <div class="card-body">
-                    {% if facture %}
-                    <div class="row mb-4">
-                        <div class="col-sm-4 text-center border-right">
-                            <label class="text-muted small">TOTAL</label>
-                            <h6>{{ facture.total_a_payer }} CDF</h6>
-                        </div>
-                        <div class="col-sm-4 text-center border-right">
-                            <label class="text-muted small">PERÇU</label>
-                            <h6 class="text-success">{{ facture.total_verse }} CDF</h6>
-                        </div>
-                        <div class="col-sm-4 text-center">
-                            <label class="text-muted small">RESTE</label>
-                            <h6 class="text-danger">{{ facture.reste_a_payer }} CDF</h6>
+                                            <div class="form-group mb-4 text-center">
+                                                <label class="label-custom text-primary">Montant à encaisser (FC)</label>
+                                                {{ form.montant_verse }}
+                                                {% if form.montant_verse.errors %}
+                                                    <div class="text-danger small mt-2"><strong>{{ form.montant_verse.errors.0 }}</strong></div>
+                                                {% endif %}
+                                            </div>
+
+                                            <div id="live-update" class="alert alert-info-custom text-center d-none py-3 shadow-sm">
+                                                <span id="update-text" class="font-weight-bold"></span>
+                                            </div>
+
+                                            <div class="row mt-4">
+                                                <div class="col-6">
+                                                    <a href="{% url 'patientRead' %}" class="btn btn-light btn-lg btn-block">Retour</a>
+                                                </div>
+                                                <div class="col-6">
+                                                    <button type="submit" class="btn btn-primary btn-lg btn-block font-weight-bold shadow-primary" id="btn-valider">
+                                                        Confirmer le Paiement
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                {% if facture %}
+                                <div class="card mt-4">
+                                    <div class="card-header bg-whitesmoke">
+                                        <h4>Historique des tranches</h4>
+                                    </div>
+                                    <div class="card-body p-0">
+                                        <div class="table-responsive">
+                                            <table class="table table-striped mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Date</th>
+                                                        <th>Agent</th>
+                                                        <th class="text-right">Montant</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for p in facture.paiements.all %}
+                                                    <tr>
+                                                        <td>{{ p.date_paiement|date:"d/m/Y H:i" }}</td>
+                                                        <td>{{ p.recepteur.username }}</td>
+                                                        <td class="text-right font-weight-bold text-success">+ {{ p.montant_verse }} FC</td>
+                                                    </tr>
+                                                    {% empty %}
+                                                    <tr><td colspan="3" class="text-center py-4">Aucun versement</td></tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
-
-                    <h6>Historique des versements pour cet acte :</h6>
-                    <ul class="list-group list-group-flush">
-                        {% for p in facture.paiements.all %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            {{ p.date_paiement|date:"d/m/Y H:i" }}
-                            <span class="badge badge-success">+ {{ p.montant_verse }} CDF</span>
-                        </li>
-                        {% empty %}
-                        <li class="list-group-item text-center text-muted italic">Aucun versement préalable.</li>
-                        {% endfor %}
-                    </ul>
-                    {% else %}
-                    <div class="text-center py-5">
-                        <i class="fas fa-file-invoice-dollar fa-3x mb-3 text-light"></i>
-                        <p class="text-muted">Sélectionnez une prestation à gauche pour initialiser la facture.</p>
-                    </div>
-                    {% endif %}
-                  </div>
-                </div>
-              </div>
+                </section>
             </div>
-          </div>
-        </section>
-      </div>
-
-      <footer class="main-footer">
-        <div class="footer-left">Copyright &copy; 2026 <div class="bullet"></div> G-HOSPITAL</div>
-      </footer>
+        </div>
     </div>
-  </div>
 
-  <script src="{% static 'back/assets/js/app.min.js' %}"></script>
-  <script src="{% static 'back/assets/bundles/select2/dist/js/select2.full.min.js' %}"></script>
-  <script src="{% static 'back/assets/js/scripts.js' %}"></script>
+    <script src="{% static 'back/assets/js/app.min.js' %}"></script>
+    <script src="{% static 'back/assets/js/scripts.js' %}"></script>
 
-  <script>
-    $(document).ready(function() {
-        $('.select2').select2();
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 1. Dictionnaire des prix injecté par Django
+            const prixFiches = {
+                {% for p in prestations %}"{{ p.id }}": {{ p.prix_fixe }}{% if not forloop.last %},{% endif %}{% endfor %}
+            };
 
-        // On définit le montant MAX possible
-        // Si c'est une facture existante, le max est 'reste_a_payer'
-        // Sinon, on utilise le mapping des prix des prestations
-        let maxAutorise = {% if facture %}{{ facture.reste_a_payer }}{% else %}0{% endif %};
+            const selectPrestation = document.querySelector('select[name="prestation"]');
+            const inputMontant = document.querySelector('input[name="montant_verse"]');
+            const displayTotal = document.getElementById('display-total');
+            const displayReste = document.getElementById('display-reste');
+            const infoBox = document.getElementById('live-update');
+            const updateText = document.getElementById('update-text');
+            const btnValider = document.getElementById('btn-valider');
 
-        const prixMapping = {
-            {% for p in prestations %}
-                "{{ p.id }}": {{ p.prix_fixe }},
-            {% endfor %}
-        };
+            // Récupération des données de facture existante (si applicable)
+            const dejaVerse = parseFloat("{{ facture.total_verse|default:0 }}".replace(',', '.'));
+            const estSurFactureExistante = {% if facture %}true{% else %}false{% endif %};
+            const resteFactureFixe = parseFloat("{{ facture.reste_a_payer|default:0 }}".replace(',', '.'));
 
-        const $prestationSelect = $('select[name="prestation"]');
-        const $montantInput = $('input[name="montant_verse"]');
-        const $infoBox = $('#prix-info-box');
-        const $prixValeur = $('#prix-valeur');
-        const $btnValider = $('#btn-valider');
+            if (inputMontant) inputMontant.classList.add('input-lg-custom');
 
-        function updatePrix() {
-            // Uniquement si on n'est pas sur une facture existante
-            {% if not facture %}
-                const selectedId = $prestationSelect.val();
-                maxAutorise = prixMapping[selectedId] || 0;
+            function calculer() {
+                let idChoisi = selectPrestation.value;
+                let saisie = parseFloat(inputMontant.value) || 0;
+                let prixMax = 0;
 
-                if (maxAutorise > 0) {
-                    $infoBox.removeClass('d-none');
-                    $prixValeur.text(maxAutorise + " CDF");
-                    if ($montantInput.val() === "") {
-                        $montantInput.val(maxAutorise);
-                    }
-                    checkMontant();
+                // Calcul du prix maximum selon le contexte (Nouvelle fiche ou Tranche)
+                if (estSurFactureExistante) {
+                    prixMax = resteFactureFixe;
                 } else {
-                    $infoBox.addClass('d-none');
+                    prixMax = prixFiches[idChoisi] || 0;
+                    displayTotal.innerText = prixMax.toLocaleString() + " FC";
+                    displayReste.innerText = prixMax.toLocaleString() + " FC";
                 }
-            {% endif %}
-        }
 
-        function checkMontant() {
-            const montant = parseFloat($montantInput.val()) || 0;
-            if (montant > maxAutorise) {
-                $montantInput.addClass('is-invalid');
-                $btnValider.prop('disabled', true);
-                $('#montant-helper').text("Erreur : Le montant ("+montant+") dépasse la limite autorisée (" + maxAutorise + " CDF)").addClass('text-danger');
-            } else if (montant <= 0) {
-                $btnValider.prop('disabled', true);
-                $('#montant-helper').text("Veuillez saisir un montant valide.").removeClass('text-danger');
-            } else {
-                $montantInput.removeClass('is-invalid');
-                $btnValider.prop('disabled', false);
-                $('#montant-helper').text("Paiement autorisé.").removeClass('text-danger');
+                if (saisie > 0) {
+                    infoBox.classList.remove('d-none');
+                    let futurReste = prixMax - saisie;
+
+                    if (futurReste > 0) {
+                        updateText.innerHTML = `<i class="fas fa-coins mr-2"></i> Reste après ce versement : ${futurReste.toLocaleString()} FC`;
+                        btnValider.className = "btn btn-warning btn-lg btn-block font-weight-bold shadow-warning";
+                        btnValider.disabled = false;
+                        inputMontant.classList.remove('is-invalid-custom');
+                    } else if (futurReste === 0) {
+                        updateText.innerHTML = `<i class="fas fa-check-circle mr-2"></i> Cette opération soldera la fiche.`;
+                        btnValider.className = "btn btn-success btn-lg btn-block font-weight-bold shadow-success";
+                        btnValider.disabled = false;
+                        inputMontant.classList.remove('is-invalid-custom');
+                    } else {
+                        updateText.innerHTML = `<i class="fas fa-times-circle mr-2"></i> Erreur : Le montant dépasse le maximum (${prixMax.toLocaleString()} FC).`;
+                        btnValider.className = "btn btn-danger btn-lg btn-block font-weight-bold";
+                        btnValider.disabled = true;
+                        inputMontant.classList.add('is-invalid-custom');
+                    }
+                } else {
+                    infoBox.classList.add('d-none');
+                    btnValider.className = "btn btn-primary btn-lg btn-block font-weight-bold shadow-primary";
+                    btnValider.disabled = false;
+                }
             }
-        }
 
-        $prestationSelect.on('change', updatePrix);
-        $montantInput.on('input', checkMontant);
+            // Écouteurs d'événements
+            if (selectPrestation) selectPrestation.addEventListener('change', calculer);
+            if (inputMontant) inputMontant.addEventListener('input', calculer);
 
-        // Au chargement
-        if ($prestationSelect.val()) {
-            updatePrix();
-        }
-    });
-  </script>
+            // Lancement initial
+            calculer();
+        });
+    </script>
 </body>
 </html>

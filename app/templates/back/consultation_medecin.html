@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="fr">
+{% load static %}
+
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+  <title>Consultation Médicale | G-HOSPITAL</title>
+  
+  <link rel="stylesheet" href="{% static 'back/assets/css/app.min.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/bundles/select2/dist/css/select2.min.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/css/components.css' %}">
+  <link rel='shortcut icon' type='image/x-icon' href="{% static 'back/assets/img/favicon.ico' %}" />
+
+  <style>
+    .sticky-sidebar { position: sticky; top: 20px; z-index: 10; }
+    .stats-box { border-radius: 10px; border: none; box-shadow: 0 4px 8px rgba(0,0,0,0.03); margin-bottom: 20px; }
+    .total-summary { 
+        background: #fdfdfd; 
+        border: 2px dashed #6777ef; 
+        border-radius: 12px; 
+        padding: 20px; 
+        margin-top: 20px;
+    }
+    #total-display { 
+        color: #28a745 !important; 
+        font-weight: 800; 
+        font-size: 1.5rem; 
+    }
+    .select2-container--default .select2-selection--multiple { 
+        border-color: #e4e6fc !important; 
+        min-height: 50px; 
+    }
+    /* Animation pour l'urgence */
+    .border-danger-pulse {
+        border: 2px solid #dc3545 !important;
+        animation: pulse-red 2s infinite;
+    }
+    @keyframes pulse-red {
+        0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="loader"></div>
+  <div id="app">
+    <div class="main-wrapper main-wrapper-1">
+      <div class="navbar-bg"></div>
+      {% include "back/query/nav.html" %}
+      {% include "back/query/sidebar.html" %}
+
+      <div class="main-content">
+        <section class="section">
+          <div class="section-header">
+            <h1>Consultation : {{ c.patient.noms }}</h1>
+            <div class="section-header-breadcrumb">
+                <div class="breadcrumb-item"><span class="badge badge-info p-2">Sexe: {{ c.patient.sexe }}</span></div>
+                <div class="breadcrumb-item"><span class="badge badge-dark p-2">Age: {{ c.patient.age }} ans</span></div>
+            </div>
+          </div>
+
+          <div class="section-body">
+            <div class="row">
+              <div class="col-lg-3 col-md-6">
+                <div class="card stats-box text-center">
+                  <div class="card-body">
+                    <div class="text-muted small text-uppercase font-weight-bold">Tension</div>
+                    <div class="h4 font-weight-bold text-primary mb-0">{{ c.tension|default:"--" }}</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-3 col-md-6">
+                <div class="card stats-box text-center">
+                  <div class="card-body">
+                    <div class="text-muted small text-uppercase font-weight-bold">Température</div>
+                    <div class="h4 font-weight-bold text-danger mb-0">{{ c.temperature|default:"--" }} °C</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-3 col-md-6">
+                <div class="card stats-box text-center">
+                  <div class="card-body">
+                    <div class="text-muted small text-uppercase font-weight-bold">Poids</div>
+                    <div class="h4 font-weight-bold text-success mb-0">{{ c.poids|default:"--" }} Kg</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-3 col-md-6">
+                <div class="card stats-box text-center">
+                  <div class="card-body">
+                    <div class="text-muted small text-uppercase font-weight-bold">Pouls</div>
+                    <div class="h4 font-weight-bold text-warning mb-0">{{ c.pouls|default:"--" }} bpm</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <form method="POST" id="consultationForm">
+              {% csrf_token %}
+              <div class="row">
+                <div class="col-lg-7">
+                  <div class="card shadow-sm">
+                    <div class="card-header border-bottom">
+                      <h4><i class="fas fa-notes-medical mr-2 text-primary"></i>Dossier Médical</h4>
+                    </div>
+                    <div class="card-body">
+                      <div class="form-group">
+                        <label class="font-weight-bold">Diagnostic & Observations Cliniques</label>
+                        <textarea name="diagnostic" class="form-control" rows="6" placeholder="Saisir les observations..." required style="height: auto;"></textarea>
+                      </div>
+                      <div class="form-group">
+                        <label class="font-weight-bold">Ordonnance / Traitement Prescrit</label>
+                        <textarea name="ordonnance" class="form-control" rows="6" placeholder="Liste des médicaments et posologie..." style="height: auto;"></textarea>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-5">
+                  <div class="sticky-sidebar">
+                    <div id="card-action" class="card shadow-sm border-primary">
+                      <div class="card-header bg-primary text-white">
+                        <h4><i class="fas fa-flask mr-2"></i>Examens & Labo</h4>
+                      </div>
+                      <div class="card-body">
+                        <div class="form-group">
+                          <label class="font-weight-bold">Prescrire des examens</label>
+                          <select name="examens" id="select-examens" class="form-control select2" multiple="">
+                            {% for exam in tous_les_examens %}
+                              <option value="{{ exam.id }}" data-price="{{ exam.prix_fixe|stringformat:'.2f' }}">
+                                {{ exam.libelle }} — {{ exam.prix_fixe }} CDF
+                              </option>
+                            {% endfor %}
+                          </select>
+                        </div>
+
+                        <div class="total-summary">
+                          <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted small font-weight-bold">NB EXAMENS :</span>
+                            <span id="count-display" class="font-weight-bold">0</span>
+                          </div>
+                          <div class="d-flex justify-content-between align-items-center border-top pt-3">
+                            <span class="font-weight-bold">TOTAL EXAMENS :</span>
+                            <span id="total-display">0.00 CDF</span>
+                          </div>
+                        </div>
+
+                        <div class="form-group mt-4 p-3 border rounded bg-light border-danger">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" name="est_urgent" class="custom-control-input" id="checkUrgent">
+                                <label class="custom-control-label text-danger font-weight-bold" for="checkUrgent" style="cursor: pointer;">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i> SIGNALER URGENCE (ACCUEIL)
+                                </label>
+                            </div>
+                            <div id="bloc-message-urgence" class="mt-2 d-none">
+                                <textarea name="message_urgence" class="form-control border-danger" rows="2" placeholder="Pourquoi est-ce urgent ? (Ex: Hospitalisation immédiate)"></textarea>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg btn-block mt-3 shadow-primary">
+                          <i class="fas fa-check-circle mr-2"></i> Valider la Consultation
+                        </button>
+                        
+                        <a href="{% url 'panel' %}" class="btn btn-light btn-block mt-2">Annuler</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </section>
+      </div>
+
+      <footer class="main-footer">
+        <div class="footer-left">G-HOSPITAL &copy; 2026 | Monnaie par défaut : <b>CDF</b></div>
+      </footer>
+    </div>
+  </div>
+
+  <script src="{% static 'back/assets/js/app.min.js' %}"></script>
+  <script src="{% static 'back/assets/bundles/select2/dist/js/select2.full.min.js' %}"></script>
+  <script src="{% static 'back/assets/js/scripts.js' %}"></script>
+
+  <script>
+    $(document).ready(function() {
+      // 1. Initialisation Select2
+      $('#select-examens').select2({
+        placeholder: "Rechercher un examen...",
+        width: '100%'
+      });
+
+      // 2. Fonction de calcul dynamique du prix
+      function recalculer() {
+        let total = 0;
+        let count = 0;
+
+        $('#select-examens option:selected').each(function() {
+            let p = $(this).attr('data-price');
+            // On remplace la virgule par un point pour le calcul JS si nécessaire
+            let val = parseFloat(p.replace(',', '.')); 
+            if (!isNaN(val)) {
+                total += val;
+                count++;
+            }
+        });
+
+        let formatted = total.toLocaleString('fr-FR', { minimumFractionDigits: 2 });
+        $("#total-display").text(formatted + " CDF");
+        $("#count-display").text(count);
+      }
+
+      $('#select-examens').on('change', recalculer);
+
+      // 3. Gestion visuelle de l'urgence
+      $('#checkUrgent').on('change', function() {
+          if($(this).is(':checked')) {
+              $('#bloc-message-urgence').removeClass('d-none').hide().slideDown();
+              $('#card-action').addClass('border-danger-pulse').removeClass('border-primary');
+              $('#card-action .card-header').addClass('bg-danger').removeClass('bg-primary');
+          } else {
+              $('#bloc-message-urgence').slideUp(function() {
+                  $(this).addClass('d-none');
+              });
+              $('#card-action').removeClass('border-danger-pulse').addClass('border-primary');
+              $('#card-action .card-header').removeClass('bg-danger').addClass('bg-primary');
+          }
+      });
+
+      // Lancement initial au cas où
+      recalculer();
+    });
+  </script>
+</body>
+</html>

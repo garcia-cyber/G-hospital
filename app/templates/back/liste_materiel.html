@@ -1,0 +1,127 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+  <title>G-Hospital | État du Stock</title>
+  <link rel="stylesheet" href="{% static 'back/assets/css/app.min.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/bundles/datatables/datatables.min.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/bundles/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/css/components.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/css/custom.css' %}">
+  <link rel='shortcut icon' type='image/x-icon' href='{% static 'back/assets/img/favicon.ico' %}' />
+</head>
+
+<body>
+  <div class="loader"></div>
+  <div id="app">
+    <div class="main-wrapper main-wrapper-1">
+      <div class="navbar-bg"></div>
+      
+      {% include "back/query/nav.html" %}
+      {% include "back/query/sidebar.html" %}
+
+      <div class="main-content">
+        <section class="section">
+          <div class="section-header">
+            <h1>Inventaire Général</h1>
+            <div class="section-header-breadcrumb">
+              <div class="breadcrumb-item active"><a href="{% url 'panel' %}">Dashboard</a></div>
+              <div class="breadcrumb-item">État du Stock</div>
+            </div>
+          </div>
+
+          <div class="section-body">
+            <div class="row">
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-header">
+                    <h4>Liste du Matériel & Médicaments</h4>
+                    <div class="card-header-action">
+                      <a href="{% url 'ajouter_materiel' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Nouveau Matériel
+                      </a>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table class="table table-striped" id="tableExport">
+                        <thead>
+                          <tr>
+                            <th class="text-center">Code</th>
+                            <th>Désignation</th>
+                            <th>Catégorie</th>
+                            <th>Quantité</th>
+                            <th>Seuil d'alerte</th>
+                            <th>Statut</th>
+                            <th>Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for item in materiels %}
+                          <tr>
+                            <td class="text-center">{{ item.code|default:"N/A" }}</td>
+                            <td class="font-weight-bold">{{ item.nom }}</td>
+                            <td><div class="badge badge-light">{{ item.categorie.nom }}</div></td>
+                            <td>{{ item.quantite }} {{ item.unite|default:"" }}</td>
+                            <td>{{ item.seuil_alerte }}</td>
+                            <td>
+                              {% if item.quantite <= 0 %}
+                                <div class="badge badge-danger">Rupture</div>
+                              {% elif item.quantite <= item.seuil_alerte %}
+                                <div class="badge badge-warning">Stock Faible</div>
+                              {% else %}
+                                <div class="badge badge-success">En Stock</div>
+                              {% endif %}
+                            </td>
+                            <td>
+                              <div class="dropdown d-inline">
+                                <button class="btn btn-primary dropdown-toggle btn-sm" type="button" id="dropdownMenuButton2"
+                                  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                  Options
+                                </button>
+                                <div class="dropdown-menu">
+                                  <a class="dropdown-item has-icon" href="#"><i class="fas fa-eye"></i> Détails</a>
+                                  <a class="dropdown-item has-icon" href="#"><i class="fas fa-edit"></i> Modifier</a>
+                                  <div class="dropdown-divider"></div>
+                                  <a class="dropdown-item has-icon text-danger" href="#"><i class="fas fa-trash"></i> Supprimer</a>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                          {% empty %}
+                          <tr>
+                            <td colspan="7" class="text-center">Aucun article dans l'inventaire.</td>
+                          </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <footer class="main-footer">
+        <div class="footer-left">
+          G-HOSPITAL &copy; 2026
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <script src="{% static 'back/assets/js/app.min.js' %}"></script>
+  <script src="{% static 'back/assets/bundles/datatables/datatables.min.js' %}"></script>
+  <script src="{% static 'back/assets/bundles/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js' %}"></script>
+  <script src="{% static 'back/assets/bundles/jquery-ui/jquery-ui.min.js' %}"></script>
+  <script src="{% static 'back/assets/js/page/datatables.js' %}"></script>
+  <script src="{% static 'back/assets/js/scripts.js' %}"></script>
+  <script src="{% static 'back/assets/js/custom.js' %}"></script>
+</body>
+</html>

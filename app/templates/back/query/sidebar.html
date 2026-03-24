@@ -1,268 +1,105 @@
+{% load static %}
 <div class="main-sidebar sidebar-style-2">
-        <aside id="sidebar-wrapper">
-          <div class="sidebar-brand">
-            <a href="{% url 'home'%}"> <img alt="image" src="assets/img/logo.png" class="header-logo" /> <span
-                class="logo-name">Hopital</span>
-            </a>
-          </div>
-          <ul class="sidebar-menu">
-            <li class="menu-header">Main</li>
-            <li class="dropdown active">
-              <a href="{% url "panel" %}" class="nav-link"><i data-feather="monitor"></i><span>Dashboard</span></a>
-            </li>
-            {% comment %} verification si la fonction est admin {% endcomment %}
-            {% if fonction == 'admin'  %}
-                
-                <li class="dropdown">
-                <a href="#" class="menu-toggle nav-link has-dropdown"><i
-                  data-feather="briefcase"></i><span>Parametres</span></a>
-                <ul class="dropdown-menu">
-                    <li><a class="nav-link" href="{% url "type_fonction_add" %}">Type de fonction</a></li>
-                    <li><a class="nav-link" href="widget-data.html">Liste de type de fonction</a></li>
-                </ul>
-                </li>
+  <aside id="sidebar-wrapper">
+    <div class="sidebar-brand">
+      <a href="{% url 'panel' %}">
+        <img alt="image" src="{% static 'back/assets/img/logo.png' %}" class="header-logo" />
+        <span class="logo-name">G-Hospital</span>
+      </a>
+    </div>
+    
+    <ul class="sidebar-menu">
+      <li class="menu-header">Tableau de bord</li>
+      <li class="{% if request.resolver_match.url_name == 'panel' %}active{% endif %}">
+        <a href="{% url 'panel' %}" class="nav-link"><i data-feather="monitor"></i><span>Dashboard</span></a>
+      </li>
 
+      {% if fonction == 'admin' or fonction == 'sous-admin' %}
+      <li class="menu-header">Administration</li>
+      <li class="dropdown {% if 'employe' in request.path or 'profil' in request.path %}active{% endif %}">
+        <a href="#" class="menu-toggle nav-link has-dropdown"><i data-feather="users"></i><span>RH & Employés</span></a>
+        <ul class="dropdown-menu">
+          <li><a class="nav-link" href="{% url 'employeAdd' %}">Ajouter Employé</a></li>
+          <li><a class="nav-link" href="{% url 'employeRead' %}">Liste Employés</a></li>
+          <li><a class="nav-link" href="{% url 'profilRead' %}">Liste Profils</a></li>
+        </ul>
+      </li>
 
-                <li class="dropdown">
-                <a href="#" class="menu-toggle nav-link has-dropdown"><i
-                  data-feather="briefcase"></i><span>Employes</span></a>
-                <ul class="dropdown-menu">
-                    <li><a class="nav-link" href="{% url "employeAdd" %}">Utilisateur</a></li>
-                    <li><a class="nav-link" href="{% url "employeRead" %}">Liste des utilisateurs</a></li>
-                    <li><a class="nav-link" href="{% url "profilRead" %}">Liste des profil utilisateur</a></li>
-                </ul>
-                </li>
-                {% comment %} gestion des patients {% endcomment %}
+      <li class="menu-header">Finance & Tarifs</li>
+      <li class="dropdown {% if 'prestation' in request.path %}active{% endif %}">
+        <a href="#" class="menu-toggle nav-link has-dropdown"><i data-feather="dollar-sign"></i><span>Catalogue</span></a>
+        <ul class="dropdown-menu">
+          <li><a class="nav-link" href="{% url 'prestation_list' %}">Liste des Tarifs</a></li>
+          <li><a class="nav-link" href="{% url 'prestation_add' %}">Ajouter Prestation</a></li>
+        </ul>
+      </li>
 
-                <li class="dropdown">
-                <a href="#" class="menu-toggle nav-link has-dropdown"><i
-                  data-feather="briefcase"></i><span>Patient(e)s</span></a>
-                <ul class="dropdown-menu">
-                    <li><a class="nav-link" href="{% url "patientAdd" %}">Ajout du patient(e)</a></li>
-                    <li><a class="nav-link" href="{% url "patientRead" %}">Liste des patient(e)s</a></li>
-                </ul>
-                </li>
+      <li class="menu-header">Logistique & Stock</li>
+      <li class="dropdown {% if 'materiel' in request.path %}active{% endif %}">
+        <a href="#" class="menu-toggle nav-link has-dropdown"><i data-feather="package"></i><span>Inventaire</span></a>
+        <ul class="dropdown-menu">
+          <li><a class="nav-link" href="{% url 'liste_materiel' %}">État du Stock</a></li>
+          <li><a class="nav-link text-primary font-weight-bold" href="{% url 'gestion_categories' %}">Gérer Catégories</a></li>
+        </ul>
+      </li>
+      {% endif %}
 
-                {% comment %} gestion de Materiels {% endcomment %}
+      {% if fonction == 'receptionniste' %}
+      <li class="menu-header">Accueil & Patients</li>
+      <li class="dropdown {% if 'patient' in request.path %}active{% endif %}">
+        <a href="#" class="menu-toggle nav-link has-dropdown"><i data-feather="user"></i><span>Patients</span></a>
+        <ul class="dropdown-menu">
+          <li><a class="nav-link" href="{% url 'patientAdd' %}">Nouveau Patient</a></li>
+          <li><a class="nav-link" href="{% url 'patientRead' %}">Liste Patients</a></li>
+        </ul>
+      </li>
+      <li class="menu-header">Pointage</li>
+      <li><a class="nav-link" href="{% url 'presence_reception' %}"><i data-feather="clock"></i><span>Présences Jour</span></a></li>
+      <li><a class="nav-link" href="{% url 'historique_presence' %}"><i data-feather="archive"></i><span>Archives Pointage</span></a></li>
+      {% endif %}
 
-                <li class="dropdown">
-                <a href="#" class="menu-toggle nav-link has-dropdown"><i
-                  data-feather="briefcase"></i><span>Materiels</span></a>
-                <ul class="dropdown-menu">
-                    <li><a class="nav-link" href="{% url "employeAdd" %}">Employe</a></li>
-                    <li><a class="nav-link" href="{% url "employeRead" %}">Liste des employes</a></li>
-                </ul>
-                </li>
+      {% if fonction == 'admin' or fonction == 'receptionniste' %}
+      <li class="menu-header">Rapports & Archives</li>
+      <li class="{% if request.resolver_match.url_name == 'statistiques_presence' %}active{% endif %}">
+        <a href="{% url 'statistiques_presence' %}" class="nav-link">
+          <i data-feather="bar-chart-2"></i><span>Stats Présences</span>
+        </a>
+      </li>
+      <li class="{% if request.resolver_match.url_name == 'gestion_documents' %}active{% endif %}">
+        <a href="{% url 'gestion_documents' %}" class="nav-link">
+          <i data-feather="folder"></i><span>Gestion Documents</span>
+        </a>
+      </li>
+      {% endif %}
 
-                {% comment %} gestion de depense  {% endcomment %}
+      {% if fonction == 'infirmie' %}
+      <li class="menu-header">Soins Infirmiers</li>
+      <li class="{% if request.resolver_match.url_name == 'panel' %}active{% endif %}">
+        <a class="nav-link" href="{% url 'panel' %}"><i data-feather="activity"></i><span>File d'attente Triage</span></a>
+      </li>
+      {% endif %}
 
-                {% elif fonction == 'receptionniste' %}
-                <li class="dropdown">
-                <a href="#" class="menu-toggle nav-link has-dropdown"><i
-                  data-feather="briefcase"></i><span>Patient(e)s</span></a>
-                <ul class="dropdown-menu">
-                    <li><a class="nav-link" href="{% url "patientAdd" %}">Ajout du patient(e)</a></li>
-                    <li><a class="nav-link" href="{% url "patientRead" %}">Liste des patient(e)s</a></li>
-                </ul>
-                </li>
-                {% elif fonction == 'infirmie' %}
-                
+      {% if fonction == 'medecin' %}
+      <li class="menu-header">Service Médical</li>
+      <li class="{% if request.resolver_match.url_name == 'panel' %}active{% endif %}">
+        <a class="nav-link" href="{% url 'panel' %}"><i data-feather="users"></i><span>File d'attente Patients</span></a>
+      </li>
+      {% endif %}
 
-            
-                {% else %}
-            <li class="dropdown">
-              <a href="#" class="menu-toggle nav-link has-dropdown"><i data-feather="command"></i><span>Apps</span></a>
-              <ul class="dropdown-menu">
-                <li><a class="nav-link" href="chat.html">Chat</a></li>
-                <li><a class="nav-link" href="portfolio.html">Portfolio</a></li>
-                <li><a class="nav-link" href="blog.html">Blog</a></li>
-                <li><a class="nav-link" href="calendar.html">Calendar</a></li>
-              </ul>
-            </li>
-            <li class="dropdown">
-              <a href="#" class="menu-toggle nav-link has-dropdown"><i data-feather="mail"></i><span>Email</span></a>
-              <ul class="dropdown-menu">
-                <li><a class="nav-link" href="email-inbox.html">Inbox</a></li>
-                <li><a class="nav-link" href="email-compose.html">Compose</a></li>
-                <li><a class="nav-link" href="email-read.html">read</a></li>
-              </ul>
-            </li>
-            <li class="menu-header">UI Elements</li>
-            <li class="dropdown">
-              <a href="#" class="menu-toggle nav-link has-dropdown"><i data-feather="copy"></i><span>Basic
-                  Components</span></a>
-              <ul class="dropdown-menu">
-                <li><a class="nav-link" href="alert.html">Alert</a></li>
-                <li><a class="nav-link" href="badge.html">Badge</a></li>
-                <li><a class="nav-link" href="breadcrumb.html">Breadcrumb</a></li>
-                <li><a class="nav-link" href="buttons.html">Buttons</a></li>
-                <li><a class="nav-link" href="collapse.html">Collapse</a></li>
-                <li><a class="nav-link" href="dropdown.html">Dropdown</a></li>
-                <li><a class="nav-link" href="checkbox-and-radio.html">Checkbox &amp; Radios</a></li>
-                <li><a class="nav-link" href="list-group.html">List Group</a></li>
-                <li><a class="nav-link" href="media-object.html">Media Object</a></li>
-                <li><a class="nav-link" href="navbar.html">Navbar</a></li>
-                <li><a class="nav-link" href="pagination.html">Pagination</a></li>
-                <li><a class="nav-link" href="popover.html">Popover</a></li>
-                <li><a class="nav-link" href="progress.html">Progress</a></li>
-                <li><a class="nav-link" href="tooltip.html">Tooltip</a></li>
-                <li><a class="nav-link" href="flags.html">Flag</a></li>
-                <li><a class="nav-link" href="typography.html">Typography</a></li>
-              </ul>
-            </li>
-            <li class="dropdown">
-              <a href="#" class="menu-toggle nav-link has-dropdown"><i
-                  data-feather="shopping-bag"></i><span>Advanced</span></a>
-              <ul class="dropdown-menu">
-                <li><a class="nav-link" href="avatar.html">Avatar</a></li>
-                <li><a class="nav-link" href="card.html">Card</a></li>
-                <li><a class="nav-link" href="modal.html">Modal</a></li>
-                <li><a class="nav-link" href="sweet-alert.html">Sweet Alert</a></li>
-                <li><a class="nav-link" href="toastr.html">Toastr</a></li>
-                <li><a class="nav-link" href="empty-state.html">Empty State</a></li>
-                <li><a class="nav-link" href="multiple-upload.html">Multiple Upload</a></li>
-                <li><a class="nav-link" href="pricing.html">Pricing</a></li>
-                <li><a class="nav-link" href="tabs.html">Tab</a></li>
-              </ul>
-            </li>
-            <li><a class="nav-link" href="blank.html"><i data-feather="file"></i><span>Blank Page</span></a></li>
-            <li class="menu-header">Otika</li>
-            <li class="dropdown">
-              <a href="#" class="menu-toggle nav-link has-dropdown"><i data-feather="layout"></i><span>Forms</span></a>
-              <ul class="dropdown-menu">
-                <li><a class="nav-link" href="basic-form.html">Basic Form</a></li>
-                <li><a class="nav-link" href="forms-advanced-form.html">Advanced Form</a></li>
-                <li><a class="nav-link" href="forms-editor.html">Editor</a></li>
-                <li><a class="nav-link" href="forms-validation.html">Validation</a></li>
-                <li><a class="nav-link" href="form-wizard.html">Form Wizard</a></li>
-              </ul>
-            </li>
-            <li class="dropdown">
-              <a href="#" class="menu-toggle nav-link has-dropdown"><i data-feather="grid"></i><span>Tables</span></a>
-              <ul class="dropdown-menu">
-                <li><a class="nav-link" href="basic-table.html">Basic Tables</a></li>
-                <li><a class="nav-link" href="advance-table.html">Advanced Table</a></li>
-                <li><a class="nav-link" href="datatables.html">Datatable</a></li>
-                <li><a class="nav-link" href="export-table.html">Export Table</a></li>
-                <li><a class="nav-link" href="editable-table.html">Editable Table</a></li>
-              </ul>
-            </li>
-            <li class="dropdown">
-              <a href="#" class="menu-toggle nav-link has-dropdown"><i
-                  data-feather="pie-chart"></i><span>Charts</span></a>
-              <ul class="dropdown-menu">
-                <li><a class="nav-link" href="chart-amchart.html">amChart</a></li>
-                <li><a class="nav-link" href="chart-apexchart.html">apexchart</a></li>
-                <li><a class="nav-link" href="chart-echart.html">eChart</a></li>
-                <li><a class="nav-link" href="chart-chartjs.html">Chartjs</a></li>
-                <li><a class="nav-link" href="chart-sparkline.html">Sparkline</a></li>
-                <li><a class="nav-link" href="chart-morris.html">Morris</a></li>
-              </ul>
-            </li>
-            <li class="dropdown">
-              <a href="#" class="menu-toggle nav-link has-dropdown"><i data-feather="feather"></i><span>Icons</span></a>
-              <ul class="dropdown-menu">
-                <li><a class="nav-link" href="icon-font-awesome.html">Font Awesome</a></li>
-                <li><a class="nav-link" href="icon-material.html">Material Design</a></li>
-                <li><a class="nav-link" href="icon-ionicons.html">Ion Icons</a></li>
-                <li><a class="nav-link" href="icon-feather.html">Feather Icons</a></li>
-                <li><a class="nav-link" href="icon-weather-icon.html">Weather Icon</a></li>
-              </ul>
-            </li>
-            <li class="menu-header">Media</li>
-            <li class="dropdown">
-              <a href="#" class="menu-toggle nav-link has-dropdown"><i data-feather="image"></i><span>Gallery</span></a>
-              <ul class="dropdown-menu">
-                <li><a class="nav-link" href="light-gallery.html">Light Gallery</a></li>
-                <li><a href="gallery1.html">Gallery 2</a></li>
-              </ul>
-            </li>
-            <li class="dropdown">
-              <a href="#" class="menu-toggle nav-link has-dropdown"><i data-feather="flag"></i><span>Sliders</span></a>
-              <ul class="dropdown-menu">
-                <li><a href="carousel.html">Bootstrap Carousel.html</a></li>
-                <li><a class="nav-link" href="owl-carousel.html">Owl Carousel</a></li>
-              </ul>
-            </li>
-            <li><a class="nav-link" href="timeline.html"><i data-feather="sliders"></i><span>Timeline</span></a></li>
-            <li class="menu-header">Maps</li>
-            <li class="dropdown">
-              <a href="#" class="menu-toggle nav-link has-dropdown"><i data-feather="map"></i><span>Google
-                  Maps</span></a>
-              <ul class="dropdown-menu">
-                <li><a href="gmaps-advanced-route.html">Advanced Route</a></li>
-                <li><a href="gmaps-draggable-marker.html">Draggable Marker</a></li>
-                <li><a href="gmaps-geocoding.html">Geocoding</a></li>
-                <li><a href="gmaps-geolocation.html">Geolocation</a></li>
-                <li><a href="gmaps-marker.html">Marker</a></li>
-                <li><a href="gmaps-multiple-marker.html">Multiple Marker</a></li>
-                <li><a href="gmaps-route.html">Route</a></li>
-                <li><a href="gmaps-simple.html">Simple</a></li>
-              </ul>
-            </li>
-            <li><a class="nav-link" href="vector-map.html"><i data-feather="map-pin"></i><span>Vector
-                  Map</span></a></li>
-            <li class="menu-header">Pages</li>
-            <li class="dropdown">
-              <a href="#" class="menu-toggle nav-link has-dropdown"><i
-                  data-feather="user-check"></i><span>Auth</span></a>
-              <ul class="dropdown-menu">
-                <li><a href="auth-login.html">Login</a></li>
-                <li><a href="auth-register.html">Register</a></li>
-                <li><a href="auth-forgot-password.html">Forgot Password</a></li>
-                <li><a href="auth-reset-password.html">Reset Password</a></li>
-                <li><a href="subscribe.html">Subscribe</a></li>
-              </ul>
-            </li>
-            <li class="dropdown">
-              <a href="#" class="menu-toggle nav-link has-dropdown"><i
-                  data-feather="alert-triangle"></i><span>Errors</span></a>
-              <ul class="dropdown-menu">
-                <li><a class="nav-link" href="errors-503.html">503</a></li>
-                <li><a class="nav-link" href="errors-403.html">403</a></li>
-                <li><a class="nav-link" href="errors-404.html">404</a></li>
-                <li><a class="nav-link" href="errors-500.html">500</a></li>
-              </ul>
-            </li>
-            <li class="dropdown">
-              <a href="#" class="menu-toggle nav-link has-dropdown"><i data-feather="anchor"></i><span>Other
-                  Pages</span></a>
-              <ul class="dropdown-menu">
-                <li><a class="nav-link" href="create-post.html">Create Post</a></li>
-                <li><a class="nav-link" href="posts.html">Posts</a></li>
-                <li><a class="nav-link" href="profile.html">Profile</a></li>
-                <li><a class="nav-link" href="contact.html">Contact</a></li>
-                <li><a class="nav-link" href="invoice.html">Invoice</a></li>
-              </ul>
-            </li>
-            <li class="dropdown">
-              <a href="#" class="menu-toggle nav-link has-dropdown"><i
-                  data-feather="chevrons-down"></i><span>Multilevel</span></a>
-              <ul class="dropdown-menu">
-                <li><a href="#">Menu 1</a></li>
-                <li class="dropdown">
-                  <a href="#" class="has-dropdown">Menu 2</a>
-                  <ul class="dropdown-menu">
-                    <li><a href="#">Child Menu 1</a></li>
-                    <li class="dropdown">
-                      <a href="#" class="has-dropdown">Child Menu 2</a>
-                      <ul class="dropdown-menu">
-                        <li><a href="#">Child Menu 1</a></li>
-                        <li><a href="#">Child Menu 2</a></li>
-                      </ul>
-                    </li>
-                    <li><a href="#"> Child Menu 3</a></li>
-                  </ul>
-                </li>
-              </ul>
-            </li>
-            
-            
-            {% endif %}
+      {% if fonction == 'laborantin' %}
+      <li class="menu-header">Laboratoire</li>
+      <li class="{% if request.resolver_match.url_name == 'panel' %}active{% endif %}">
+        <a class="nav-link" href="{% url 'panel' %}"><i data-feather="test-tube"></i><span>Examens & Résultats</span></a>
+      </li>
+      {% endif %}
 
-           
+    </ul>
 
-            
-          </ul>
-        </aside>
-      </div>
+    <div class="mt-4 mb-4 p-3 hide-sidebar-mini">
+        <a href="{% url 'deco' %}" class="btn btn-danger btn-lg btn-block btn-icon-split shadow-sm">
+            <i class="fas fa-sign-out-alt"></i> Déconnexion
+        </a>
+    </div>
+
+  </aside>
+</div>

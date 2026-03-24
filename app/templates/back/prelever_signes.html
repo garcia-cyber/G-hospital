@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+    <title>G-HOSPITAL | Signes Vitaux</title>
+    <link rel="stylesheet" href="{% static 'back/assets/css/app.min.css' %}">
+    <link rel="stylesheet" href="{% static 'back/assets/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'back/assets/css/components.css' %}">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css">
+</head>
+<body>
+    <div id="app">
+        <div class="main-wrapper main-wrapper-1">
+            {% include "back/query/nav.html" %}
+            {% include "back/query/sidebar.html" %}
+
+            <div class="main-content">
+                <section class="section">
+                    <div class="section-header">
+                        <h1>Prise des Constantes</h1>
+                    </div>
+                    <div class="section-body">
+                        <div class="row">
+                            <div class="col-12 col-md-6 offset-md-3">
+                                <div class="card card-primary">
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        <div class="card-header">
+                                            <h4>Patient : {{ consultation.patient.noms|upper }}</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="form-group">
+                                                <label><i class="fas fa-thermometer-half"></i> Température (°C)</label>
+                                                <input type="number" step="0.1" name="temperature" class="form-control" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label><i class="fas fa-tint"></i> Tension Artérielle</label>
+                                                <input type="text" name="tension" class="form-control" placeholder="Ex: 12/8" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label><i class="fas fa-weight"></i> Poids (kg)</label>
+                                                <input type="number" step="0.1" name="poids" class="form-control" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label><i class="fas fa-heartbeat"></i> Pouls (BPM)</label>
+                                                <input type="number" name="pouls" class="form-control" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" name="est_urgent" value="True" class="custom-control-input" id="urgentCheck">
+                                                    <label class="custom-control-label text-danger font-weight-bold" for="urgentCheck">Cas Urgent</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer text-right">
+                                            <a href="{% url 'panel' %}" class="btn btn-secondary">Annuler</a>
+                                            <button type="submit" class="btn btn-primary">Enregistrer et Envoyer</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'back/assets/js/app.min.js' %}"></script>
+    <script src="{% static 'back/assets/js/scripts.js' %}"></script>
+</body>
+</html>

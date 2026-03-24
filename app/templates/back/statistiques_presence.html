@@ -1,0 +1,189 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+  <title>G-Hospital | Statistiques de Présence</title>
+  <link rel="stylesheet" href="{% static 'back/assets/css/app.min.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/css/components.css' %}">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css">
+  <style>
+    .avatar-circle {
+      width: 40px; height: 40px; background-color: #6777ef;
+      color: white; border-radius: 50%; display: flex;
+      align-items: center; justify-content: center; font-weight: bold;
+    }
+    .progress-sm { height: 6px !important; }
+    /* Animation douce pour le filtrage */
+    .employee-card, .employee-row { transition: all 0.3s ease; }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <div class="main-wrapper main-wrapper-1">
+      {% include "back/query/nav.html" %}
+      {% include "back/query/sidebar.html" %}
+
+      <div class="main-content">
+        <section class="section">
+          <div class="section-header shadow-sm">
+            <h1><i class="fas fa-user-check mr-2 text-primary"></i> Analyse de l'Assiduité</h1>
+          </div>
+
+          <div class="row">
+            <div class="col-lg-4 col-md-6 col-sm-6 col-12">
+              <div class="card card-statistic-1 shadow-sm">
+                <div class="card-icon bg-primary"><i class="fas fa-calendar-alt"></i></div>
+                <div class="card-wrap">
+                  <div class="card-header"><h4>Total Jours Suivis</h4></div>
+                  <div class="card-body">{{ total_jours }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6 col-sm-6 col-12">
+              <div class="card card-statistic-1 shadow-sm">
+                <div class="card-icon bg-success"><i class="fas fa-users"></i></div>
+                <div class="card-wrap">
+                  <div class="card-header"><h4>Effectif Analysé</h4></div>
+                  <div class="card-body">{{ stats|length }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mb-4">
+            <div class="col-12 col-md-6 col-lg-4">
+              <div class="form-group mb-0">
+                <div class="input-group shadow-sm">
+                  <div class="input-group-prepend">
+                    <div class="input-group-text bg-white border-right-0">
+                      <i class="fas fa-search text-primary"></i>
+                    </div>
+                  </div>
+                  <input type="text" id="searchInput" class="form-control border-left-0" placeholder="Rechercher un agent..." onkeyup="filterEmployees()">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <h2 class="section-title">Focus par Employé</h2>
+          <div class="row" id="cardsContainer">
+            {% for s in stats %}
+            <div class="col-12 col-md-6 col-lg-4 employee-card" data-name="{{ s.nom|lower }}">
+              <div class="card shadow-sm border-top-0 card-{{ s.performance }}">
+                <div class="card-body pb-0">
+                  <div class="d-flex align-items-center mb-3">
+                    <div class="avatar-circle mr-3">{{ s.nom|slice:":1"|upper }}</div>
+                    <div>
+                      <h6 class="mb-0 text-dark">{{ s.nom }}</h6>
+                      <span class="text-muted small">{{ s.poste }}</span>
+                    </div>
+                  </div>
+                  <div class="mb-2">
+                    <div class="d-flex justify-content-between small mb-1">
+                      <span>Taux d'assiduité</span>
+                      <span class="font-weight-bold text-{{ s.performance }}">{{ s.taux }}%</span>
+                    </div>
+                    <div class="progress progress-sm">
+                      <div class="progress-bar bg-{{ s.performance }}" style="width: {{ s.taux }}%"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-footer bg-whitesmoke border-0 mt-3 py-2">
+                  <div class="row">
+                    <div class="col-6 border-right text-center small">
+                      <div class="text-muted">Présences</div>
+                      <div class="font-weight-bold">{{ s.total_presences }} j</div>
+                    </div>
+                    <div class="col-6 text-center">
+                      <span class="badge badge-{{ s.performance }} badge-pill small" style="font-size: 10px;">
+                        {% if s.performance == 'success' %}EXCELLENT{% elif s.performance == 'warning' %}MOYEN{% else %}CRITIQUE{% endif %}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+
+          <div class="row mt-4">
+            <div class="col-12">
+              <div class="card shadow-sm">
+                <div class="card-header">
+                  <h4><i class="fas fa-list mr-2"></i> Tableau Récapitulatif Global</h4>
+                </div>
+                <div class="card-body p-0">
+                  <div class="table-responsive">
+                    <table class="table table-striped table-md align-middle mb-0" id="statsTable">
+                      <thead class="bg-whitesmoke">
+                        <tr>
+                          <th>Nom de l'Agent</th>
+                          <th>Service & Poste</th>
+                          <th class="text-center">Jours / Période</th>
+                          <th>Performance</th>
+                          <th class="text-right">Taux (%)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for s in stats %}
+                        <tr class="employee-row" data-name="{{ s.nom|lower }}">
+                          <td class="font-weight-bold">{{ s.nom }}</td>
+                          <td>
+                             <div class="text-muted small">{{ s.service }}</div>
+                             <div class="badge badge-light" style="font-size: 10px;">{{ s.poste }}</div>
+                          </td>
+                          <td class="text-center">
+                            <span class="badge badge-dark">{{ s.total_presences }} / {{ total_jours }}</span>
+                          </td>
+                          <td style="width: 200px;">
+                            <div class="progress progress-sm mt-1">
+                              <div class="progress-bar bg-{{ s.performance }}" style="width: {{ s.taux }}%"></div>
+                            </div>
+                          </td>
+                          <td class="text-right font-weight-bold text-{{ s.performance }}">{{ s.taux }}%</td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <footer class="main-footer">
+        <div class="footer-left">G-HOSPITAL &copy; 2026</div>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    function filterEmployees() {
+      let filter = document.getElementById('searchInput').value.toLowerCase();
+      
+      // Filtrer les cartes
+      let cards = document.querySelectorAll('.employee-card');
+      cards.forEach(card => {
+        let name = card.getAttribute('data-name');
+        card.style.display = name.includes(filter) ? "" : "none";
+      });
+
+      // Filtrer les lignes du tableau
+      let rows = document.querySelectorAll('.employee-row');
+      rows.forEach(row => {
+        let name = row.getAttribute('data-name');
+        row.style.display = name.includes(filter) ? "" : "none";
+      });
+    }
+  </script>
+
+  <script src="{% static 'back/assets/js/app.min.js' %}"></script>
+  <script src="{% static 'back/assets/js/scripts.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+  <title>G-Hospital | Ajouter une Prestation</title>
+  <link rel="stylesheet" href="{% static 'back/assets/css/app.min.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/css/components.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/css/custom.css' %}">
+  <link rel='shortcut icon' type='image/x-icon' href="{% static 'back/assets/img/favicon.ico' %}" />
+</head>
+
+<body>
+  <div class="loader"></div>
+  <div id="app">
+    <div class="main-wrapper main-wrapper-1">
+      <div class="navbar-bg"></div>
+      
+      {% include "back/query/nav.html" %}
+      {% include "back/query/sidebar.html" %}
+
+      <div class="main-content">
+        <section class="section">
+          <div class="section-header">
+            <h1>Configuration du Catalogue</h1>
+            <div class="section-header-breadcrumb">
+              <div class="breadcrumb-item active"><a href="{% url 'panel' %}">Dashboard</a></div>
+              <div class="breadcrumb-item"><a href="{% url 'prestation_list' %}">Prestations</a></div>
+              <div class="breadcrumb-item">Nouveau Tarif</div>
+            </div>
+          </div>
+
+          <div class="section-body">
+            <div class="row justify-content-center">
+              <div class="col-12 col-md-10 col-lg-8">
+                <div class="card card-primary">
+                  <div class="card-header">
+                    <h4><i class="fas fa-tag mr-2"></i> Ajouter une nouvelle prestation</h4>
+                  </div>
+                  <div class="card-body">
+                    {% if msg %}
+                      <div class="alert alert-danger alert-dismissible show fade">
+                        <div class="alert-body">
+                          <button class="close" data-dismiss="alert"><span>&times;</span></button>
+                          {{ msg }}
+                        </div>
+                      </div>
+                    {% endif %}
+
+                    <form method="POST" class="needs-validation" novalidate="">
+                      {% csrf_token %}
+                      
+                      <div class="form-group">
+                        <label>Désignation / Libellé de l'acte</label>
+                        {{ form.libelle }}
+                        <div class="invalid-feedback">Veuillez saisir le nom de la prestation.</div>
+                      </div>
+
+                      <div class="row">
+                        <div class="col-md-12">
+                          <div class="form-group">
+                            <label>Prix de la prestation (FC)</label>
+                            {{ form.prix_fixe }}
+                          </div>
+                        </div>
+                        <!-- <div class="col-md-6">
+                          <div class="form-group">
+                            <label>Service Responsable</label>
+                            {{ form.service }}
+                          </div>
+                        </div> -->
+                      </div>
+
+                      <div class="form-group">
+                        <label>Catégorie de prestation</label>
+                        {{ form.type_prestation }}
+                      </div>
+
+                      <div class="row border-top pt-3 mt-3">
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <div class="control-label mb-2">Paramètre de facturation</div>
+                            <div class="custom-control custom-checkbox">
+                              {{ form.est_fiche_obligatoire }}
+                              <label class="custom-control-label font-weight-bold text-danger" for="{{ form.est_fiche_obligatoire.id_for_label }}">
+                                Définir comme FICHE D'ENTRÉE obligatoire
+                              </label>
+                            </div>
+                            <small class="text-muted">Si coché, ce tarif sera appliqué automatiquement à chaque nouveau patient.</small>
+                          </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <div class="control-label mb-2">Disponibilité</div>
+                            <div class="custom-control custom-checkbox">
+                              {{ form.active }}
+                              <label class="custom-control-label" for="{{ form.active.id_for_label }}">
+                                Rendre cette prestation active immédiatement
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="card-footer text-right border-top-0">
+                        <a href="{% url 'prestation_list' %}" class="btn btn-secondary mr-2">Annuler</a>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                          <i class="fas fa-save mr-1"></i> Enregistrer le tarif
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <footer class="main-footer">
+        <div class="footer-left">
+          G-HOSPITAL &copy; 2026
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <script src="{% static 'back/assets/js/app.min.js' %}"></script>
+  <script src="{% static 'back/assets/js/scripts.js' %}"></script>
+  <script src="{% static 'back/assets/js/custom.js' %}"></script>
+</body>
+</html>

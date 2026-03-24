@@ -1,98 +1,208 @@
 <!DOCTYPE html>
- {% load static %}
-<html lang="en">
- 
-
-
-<!-- auth-login.html  21 Nov 2019 03:49:32 GMT -->
+{% load static %}
+<html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
-  <title>Hopital </title>
-  <!-- General CSS Files -->
+  <title>G-Hospital | Connexion Sécurisée</title>
+  
   <link rel="stylesheet" href="{% static 'back/assets/css/app.min.css' %}">
-  <link rel="stylesheet" href="{% static 'back/assets/bundles/bootstrap-social/bootstrap-social.css' %}">
-  <!-- Template CSS -->
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css">
   <link rel="stylesheet" href="{% static 'back/assets/css/style.css' %}">
   <link rel="stylesheet" href="{% static 'back/assets/css/components.css' %}">
-  <!-- Custom style CSS -->
-  <link rel="stylesheet" href="{% static 'back/assets/css/custom.css' %}">
-  <link rel='shortcut icon' type='image/x-icon' href="{% static 'back/assets/img/favicon.ico' %}" />
 
   <style>
-    body{
-      background: linear-gradient(to left , #0008 ,#0000),url("{% static 'back/hopital/img4.jpg'%}");
+    :root {
+      --primary-color: #6777ef;
+      --medical-blue: #0056b3;
+    }
+
+    body {
+      /* Superposition d'un dégradé plus riche pour la lisibilité */
+      background: linear-gradient(135deg, rgba(103, 119, 239, 0.9) 0%, rgba(4, 12, 59, 0.8) 100%), 
+                  url("{% static 'back/hopital/7.jpg' %}");
       background-size: cover;
-      background-repeat: no-repeat;
       background-position: center;
-      min-height: 94.4vh;
+      background-attachment: fixed;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      font-family: 'Poppins', sans-serif;
+    }
+    
+    .card-login {
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(15px); /* Effet verre dépoli */
+      box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+      overflow: hidden;
+      animation: fadeInDown 0.8s ease-out;
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-header-hospital {
+      padding: 40px 20px 20px 20px;
+      text-align: center;
+    }
+
+    .hospital-logo {
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: var(--primary-color);
+      text-transform: uppercase;
+      letter-spacing: -1px;
+    }
+
+    .hospital-logo i {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .form-group label {
+      font-weight: 600;
+      color: #34395e;
+      text-transform: uppercase;
+      font-size: 10px;
+      letter-spacing: 1px;
+    }
+
+    .input-group-text {
+      background-color: #f9f9ff;
+      border-color: #e4e6fc;
+      color: var(--primary-color);
+      width: 45px;
+      justify-content: center;
+      border-radius: 10px 0 0 10px !important;
+    }
+
+    .form-control {
+      border-radius: 0 10px 10px 0 !important;
+      height: 48px;
+      border-color: #e4e6fc;
+      background: #fdfdff;
+    }
+
+    .form-control:focus {
+      background: #fff;
+      box-shadow: 0 0 10px rgba(103, 119, 239, 0.1);
+    }
+
+    .btn-login {
+      height: 50px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-radius: 10px;
+      background: linear-gradient(to right, #6777ef, #394eea);
+      border: none;
+      box-shadow: 0 4px 15px rgba(103, 119, 239, 0.4);
+      transition: all 0.4s;
+    }
+
+    .btn-login:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(103, 119, 239, 0.5);
+    }
+
+    .footer-text {
+      color: rgba(255,255,255,0.7);
+      font-size: 12px;
+    }
+
+    .alert {
+      border-radius: 10px;
+      border: none;
     }
   </style>
 </head>
 
 <body>
-  <div class="loader mt-4"></div>
-  <div id="app">
-    <section class="section mt-4">
-      <div class="container mt-5">
-        <div class="row mt-4">
-          <div class="col-12 col-sm-8 offset-sm-2 col-md-6 offset-md-3 col-lg-6 offset-lg-3 col-xl-4 offset-xl-4">
-            <div class="card card-primary mt-4">
+  <div id="app" class="container">
+    <div class="row">
+      <div class="col-12 col-sm-8 offset-sm-2 col-md-6 offset-md-3 col-lg-5 offset-lg-3 col-xl-4 offset-xl-4">
+        
+        <div class="card card-login">
+          <div class="card-header-hospital">
+            <div class="hospital-logo">
+              <i class="fas fa-hand-holding-medical"></i>
+              G-<span>Hospital</span>
+            </div>
+            <div class="badge badge-primary mt-2">PORTAIL SÉCURISÉ</div>
+          </div>
 
-              <div class="card-header">
-                
-                <h4>Authentification</h4>
-              </div>
-              <div class="card-body">
-                 {% if msg %}
-                    <div class="alert alert-danger">
-                        {{msg}}
-                    </div>
-                {% endif %}
-                <form method="POST"  class="needs-validation" novalidate="">
-                  {% csrf_token %}
-                  {{form.as_p}}
-                  
-                  
-                  <div class="form-group">
-                    <button type="submit" class="btn btn-primary btn-lg btn-block" tabindex="4">
-                      Login
-                    </button>
-                  </div>
-                </form>
-                <div class="text-center mt-4 mb-3">
-                  <div class="text-job text-muted">Login With Social</div>
-                </div>
-                <div class="row sm-gutters">
-                  <div class="col-6">
-                    <a class="btn btn-block btn-social btn-facebook">
-                      <span class="fab fa-facebook"></span> Facebook
-                    </a>
-                  </div>
-                  <div class="col-6">
-                    <a class="btn btn-block btn-social btn-twitter">
-                      <span class="fab fa-twitter"></span> Twitter
-                    </a>
-                  </div>
-                </div>
+          <div class="card-body p-4">
+            {% if msg %}
+            <div class="alert alert-danger alert-dismissible show fade">
+              <div class="alert-body">
+                <button class="close" data-dismiss="alert"><span>&times;</span></button>
+                <i class="fas fa-lock-open mr-2"></i> {{ msg }}
               </div>
             </div>
-            
+            {% endif %}
+
+            <form method="POST" class="needs-validation">
+              {% csrf_token %}
+              
+              <div class="form-group">
+                <label>Identifiant Personnel</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <div class="input-group-text">
+                      <i class="fas fa-user-circle"></i>
+                    </div>
+                  </div>
+                  <input type="text" name="username" class="form-control" placeholder="Ex: dr_mukoko" required autofocus>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Clé d'accès</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <div class="input-group-text">
+                      <i class="fas fa-shield-alt"></i>
+                    </div>
+                  </div>
+                  <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" name="remember" class="custom-control-input" id="remember-me">
+                  <label class="custom-control-label" for="remember-me">Maintenir la session</label>
+                </div>
+              </div>
+
+              <div class="form-group mb-0">
+                <button type="submit" class="btn btn-primary btn-lg btn-block btn-login">
+                  Démarrer la session <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+              </div>
+            </form>
+          </div>
+          
+          <div class="card-footer bg-light text-center py-3">
+             <span class="text-muted small">Besoin d'aide ? <a href="#">Contactez l'IT</a></span>
           </div>
         </div>
+        
+        <div class="mt-4 footer-text text-center">
+          &copy; 2026 G-Hospital System v2.0 <br>
+          <i class="fas fa-shield-check"></i> Connexion sécurisée SSL 256-bit
+        </div>
+
       </div>
-    </section>
+    </div>
   </div>
-  <!-- General JS Scripts -->
+
   <script src="{% static 'back/assets/js/app.min.js'%}"></script>
-  <!-- JS Libraies -->
-  <!-- Page Specific JS File -->
-  <!-- Template JS File -->
   <script src="{% static 'back/assets/js/scripts.js'%}"></script>
-  <!-- Custom JS File -->
-  <script src="{% static 'back/assets/js/custom.js'%}"></script>
 </body>
-
-
-<!-- auth-login.html  21 Nov 2019 03:49:32 GMT -->
 </html>

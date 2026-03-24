@@ -1,0 +1,145 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+  <title>G-Hospital | Catalogue des Tarifs</title>
+  <link rel="stylesheet" href="{% static 'back/assets/css/app.min.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/css/components.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/css/custom.css' %}">
+  <link rel='shortcut icon' type='image/x-icon' href="{% static 'back/assets/img/favicon.ico' %}" />
+</head>
+
+<body>
+  <div class="loader"></div>
+  <div id="app">
+    <div class="main-wrapper main-wrapper-1">
+      <div class="navbar-bg"></div>
+      
+      {% include "back/query/nav.html" %}
+      {% include "back/query/sidebar.html" %}
+
+      <div class="main-content">
+        <section class="section">
+          <div class="section-header">
+            <h1>Catalogue des Prestations</h1>
+            <div class="section-header-button">
+              <a href="{% url 'prestation_add' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Ajouter un Tarif
+              </a>
+            </div>
+            <div class="section-header-breadcrumb">
+              <div class="breadcrumb-item active"><a href="{% url 'panel' %}">Dashboard</a></div>
+              <div class="breadcrumb-item">Configurations</div>
+              <div class="breadcrumb-item">Tarifs</div>
+            </div>
+          </div>
+
+          <div class="section-body">
+            <div class="row">
+              <div class="col-12">
+                <div class="card card-primary">
+                  <div class="card-header">
+                    <h4>Liste des tarifs en vigueur</h4>
+                  </div>
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table class="table table-striped" id="table-1">
+                        <thead>
+                          <tr>
+                            <th>Type</th>
+                            <th>Désignation</th>
+                            <th>Service</th>
+                            <th>Prix Fixe</th>
+                            <th>Statut</th>
+                            <th>Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for p in prestations %}
+                          <tr>
+                            <td>
+                              {% if p.est_fiche_obligatoire %}
+                                <span class="badge badge-danger shadow-danger">
+                                  <i class="fas fa-star"></i> FICHE OBLIGATOIRE
+                                </span>
+                              {% else %}
+                                <span class="badge badge-info">
+                                  {{ p.get_type_prestation_display }}
+                                </span>
+                              {% endif %}
+                            </td>
+                            <td class="font-weight-bold">{{ p.libelle }}</td>
+                            <td>
+                              {% if p.service %}
+                                <i class="fas fa-hospital-symbol text-primary mr-1"></i> {{ p.service.nom }}
+                              {% else %}
+                                <span class="text-muted italic">Administration Générale</span>
+                              {% endif %}
+                            </td>
+                            <td>
+                              <span class="badge badge-light">
+                                {{ p.prix_fixe }} FC
+                              </span>
+                            </td>
+                            <td>
+                              {% if p.active %}
+                                <div class="badge badge-success">Actif</div>
+                              {% else %}
+                                <div class="badge badge-secondary">Désactivé</div>
+                              {% endif %}
+                            </td>
+                            <td>
+                              <a href="{% url 'prestation_edit' p.pk %}" class="btn btn-sm btn-outline-warning" data-toggle="tooltip" title="Modifier">
+                                <i class="fas fa-edit"></i>
+                              </a>
+                            </td>
+                          </tr>
+                          {% empty %}
+                          <tr>
+                            <td colspan="6" class="text-center p-4">
+                              <p class="mb-0">Aucune prestation trouvée dans le catalogue.</p>
+                              <a href="{% url 'prestation_add' %}" class="btn btn-link">Créer la première prestation</a>
+                            </td>
+                          </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <footer class="main-footer">
+        <div class="footer-left">
+          G-HOSPITAL &copy; 2026
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <script src="{% static 'back/assets/js/app.min.js' %}"></script>
+  <script src="{% static 'back/assets/bundles/datatables/datatables.min.js' %}"></script>
+  <script src="{% static 'back/assets/bundles/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js' %}"></script>
+  <script src="{% static 'back/assets/js/scripts.js' %}"></script>
+  <script>
+    $(document).ready(function() {
+      $("#table-1").dataTable({
+        "columnDefs": [
+          { "sortable": false, "targets": [5] }
+        ],
+        "language": {
+          "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/French.json"
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>G-Hospital | Gestion Catégories</title>
+  <link rel="stylesheet" href="{% static 'back/assets/css/app.min.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/css/style.css' %}">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css">
+</head>
+
+<body>
+  <div id="app">
+    <div class="main-wrapper main-wrapper-1">
+      {% include "back/query/nav.html" %}
+      {% include "back/query/sidebar.html" %}
+
+      <div class="main-content">
+        <section class="section">
+          <div class="section-header">
+            <h1><i class="fas fa-tags mr-2 text-primary"></i> Catégories de Matériel</h1>
+          </div>
+
+          <div class="section-body">
+            <div class="row">
+              <div class="col-md-5">
+                <div class="card card-primary">
+                  <div class="card-header">
+                    <h4>Ajouter une catégorie</h4>
+                  </div>
+                  <div class="card-body">
+                    <form method="POST">
+                      {% csrf_token %}
+                      <div class="form-group">
+                        <label>Nom de la catégorie</label>
+                        <input type="text" name="nom" class="form-control" placeholder="Ex: Pharmacie, Labo..." required>
+                      </div>
+                      <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-plus mr-1"></i> Créer la catégorie
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-7">
+                <div class="card">
+                  <div class="card-header">
+                    <h4>Liste des catégories existantes</h4>
+                  </div>
+                  <div class="card-body p-0">
+                    <div class="table-responsive">
+                      <table class="table table-striped mb-0">
+                        <thead>
+                          <tr>
+                            <th>#</th>
+                            <th>Nom de la catégorie</th>
+                            <th class="text-right">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for cat in categories %}
+                          <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td class="font-weight-bold">{{ cat.nom }}</td>
+                            <td class="text-right">
+                              <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
+                            </td>
+                          </tr>
+                          {% empty %}
+                          <tr>
+                            <td colspan="3" class="text-center">Aucune catégorie enregistrée.</td>
+                          </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <footer class="main-footer text-center">G-HOSPITAL &copy; 2026</footer>
+    </div>
+  </div>
+  <script src="{% static 'back/assets/js/app.min.js' %}"></script>
+  <script src="{% static 'back/assets/js/scripts.js' %}"></script>
+</body>
+</html>

@@ -1,27 +1,98 @@
 <!DOCTYPE html>
-<html lang="en">
-  {% load static %}
+<html lang="fr">
+{% load static %}
 
-
-<!-- forms-advanced-form.html  21 Nov 2019 03:54:41 GMT -->
 <head>
   <meta charset="UTF-8">
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
-  <title>Ajouter employe</title> 
-  <!-- General CSS Files -->
-  <link rel="stylesheet" href="{% static 'back/assets/css/app.min.css'%}">
-  <link rel="stylesheet" href="{% static 'back/assets/bundles/bootstrap-daterangepicker/daterangepicker.css'%}">
-  <link rel="stylesheet" href="{% static 'back/assets/bundles/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css'%}">
-  <link rel="stylesheet" href="{% static 'back/assets/bundles/select2/dist/css/select2.min.css'%}">
-  <link rel="stylesheet" href="{% static 'back/assets/bundles/jquery-selectric/selectric.css'%}">
-  <link rel="stylesheet" href="{% static 'back/assets/bundles/bootstrap-timepicker/css/bootstrap-timepicker.min.css'%}">
-  <link rel="stylesheet" href="{% static 'back/assets/bundles/bootstrap-tagsinput/dist/bootstrap-tagsinput.css'%}">
-  <!-- Template CSS -->
-  <link rel="stylesheet" href="{% static 'back/assets/css/style.css'%}">
-  <link rel="stylesheet" href="{% static 'back/assets/css/components.css'%}">
-  <!-- Custom style CSS -->
-  <link rel="stylesheet" href="{% static 'back/assets/css/custom.css'%}">
-  <link rel='shortcut icon' type='image/x-icon' href="{% static 'back/assets/img/favicon.ico'%}" />
+  <title>G-HOSPITAL | Ajouter un employé</title>
+  
+  <link rel="stylesheet" href="{% static 'back/assets/css/app.min.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/bundles/select2/dist/css/select2.min.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/css/components.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/css/custom.css' %}">
+  <link rel='shortcut icon' type='image/x-icon' href="{% static 'back/assets/img/favicon.ico' %}" />
+
+  <style>
+    .form-group-custom { margin-bottom: 25px; position: relative; }
+    
+    .form-group-custom label {
+      font-weight: 700 !important;
+      color: #1a3a8f !important;
+      display: block;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+    }
+    
+    /* Style des inputs par défaut et en cas d'erreur */
+    .form-control-custom {
+      display: block;
+      width: 100%;
+      height: 48px;
+      padding: 10px 15px;
+      color: #495057;
+      background-color: #ffffff;
+      border: 1px solid #e4e6fc;
+      border-radius: 10px;
+      transition: all 0.3s;
+    }
+
+    .is-invalid-input {
+      border-color: #fc544b !important;
+      background-color: #fff9f9 !important;
+    }
+    
+    .form-control-custom:focus {
+      border-color: #00d2d3;
+      box-shadow: 0 0 8px rgba(0, 210, 211, 0.2);
+      outline: none;
+    }
+
+    .error-feedback {
+      color: #fc544b;
+      font-size: 12px;
+      font-weight: 700;
+      margin-top: 6px;
+      display: block;
+      animation: fadeInDown 0.3s;
+    }
+
+    .card-header-hospital {
+      background: linear-gradient(135deg, #1a3a8f 0%, #00d2d3 100%);
+      padding: 30px;
+      border-radius: 15px 15px 0 0;
+      text-align: center;
+    }
+
+    .card-header-hospital h4 {
+      color: white !important;
+      font-weight: 800;
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .btn-save {
+      background: linear-gradient(135deg, #1a3a8f 0%, #00d2d3 100%);
+      border: none;
+      color: white;
+      height: 55px;
+      font-weight: 700;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(26, 58, 143, 0.2);
+      transition: 0.4s;
+      font-size: 16px;
+    }
+
+    .btn-save:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 210, 211, 0.4);
+      color: white;
+    }
+  </style>
 </head>
 
 <body>
@@ -32,170 +103,110 @@
       
       {% include "back/query/nav.html" %}
       {% include "back/query/sidebar.html" %}
-      <!-- Main Content -->
+
       <div class="main-content">
         <section class="section">
           <div class="section-body">
-            <div class="row">
-              <div class="col-12 col-md-6 col-lg-6">
-                <div class="card">
-                  <div class="card-header">
-                    <h4>Formulaire employe</h4> 
-                  </div>
-                  <div class="card-body">
-                 {% if msg %}
-                    <div class="alert alert-success">
-                        {{msg}}
-                    </div>
-                {% endif %}
-                <form method="POST"  class="needs-validation" novalidate="">
-                  {% csrf_token %}
-                  {{form.as_p}}
-                  
-                  
-                  <div class="form-group">
-                    <button type="submit" class="btn btn-primary btn-lg btn-block" tabindex="4">
-                      Valider
-                    </button>
-                  </div>
-                </form>
-               
+            <div class="row justify-content-center">
+              <div class="col-12 col-md-10 col-lg-7">
                 
-              </div>
+                <div class="card" style="border-radius: 15px; border: none; box-shadow: 0 15px 35px rgba(0,0,0,0.1);">
+                  
+                  <div class="card-header-hospital">
+                    <h4>Ajouter un Collaborateur</h4>
+                  </div>
+
+                  <div class="card-body p-5">
                     
+                    {% if msg %}
+                      <div class="alert alert-success alert-dismissible show fade">
+                        <div class="alert-body">
+                          <button class="close" data-dismiss="alert"><span>&times;</span></button>
+                          <i class="fas fa-check-circle"></i> {{msg}}
+                        </div>
+                      </div>
+                    {% endif %}
+
+                    {% if form.non_field_errors %}
+                      <div class="alert alert-danger alert-dismissible show fade">
+                        <div class="alert-body">
+                          <button class="close" data-dismiss="alert"><span>&times;</span></button>
+                          {% for error in form.non_field_errors %}
+                            <i class="fas fa-exclamation-triangle"></i> {{ error }}
+                          {% endfor %}
+                        </div>
+                      </div>
+                    {% endif %}
+
+                    <form method="POST" class="needs-validation" novalidate="">
+                      {% csrf_token %}
                       
-                    
-                    
+                      <div class="form-container">
+                        {% for field in form %}
+                          <div class="form-group-custom">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            
+                            <div class="input-wrapper">
+                              {{ field }}
+                            </div>
+
+                            {% if field.errors %}
+                              {% for error in field.errors %}
+                                <span class="error-feedback">
+                                  <i class="fas fa-times-circle"></i> {{ error }}
+                                </span>
+                              {% endfor %}
+                              <script>
+                                // Script pour ajouter dynamiquement la classe rouge en cas d'erreur
+                                document.getElementById("{{ field.id_for_label }}").classList.add("is-invalid-input");
+                              </script>
+                            {% endif %}
+                          </div>
+                        {% endfor %}
+                      </div>
+                      
+                      <div class="form-group mt-5">
+                        <button type="submit" class="btn btn-save btn-block">
+                          <i class="fas fa-save"></i> ENREGISTRER L'EMPLOYÉ
+                        </button>
+                      </div>
+                    </form>
                   </div>
+
+                  <div class="card-footer bg-light text-center" style="border-radius: 0 0 15px 15px; padding: 20px;">
+                    <a href="{% url 'employeRead' %}" class="text-muted" style="text-decoration: none; font-weight: 700; font-size: 13px;">
+                      <i class="fas fa-arrow-left"></i> RETOUR À LA LISTE DES EMPLOYÉS
+                    </a>
+                  </div>
+
                 </div>
-               
-                
               </div>
-              
             </div>
           </div>
         </section>
-        <div class="settingSidebar">
-          <a href="javascript:void(0)" class="settingPanelToggle"> <i class="fa fa-spin fa-cog"></i>
-          </a>
-          <div class="settingSidebar-body ps-container ps-theme-default">
-            <div class=" fade show active">
-              <div class="setting-panel-header">Setting Panel
-              </div>
-              <div class="p-15 border-bottom">
-                <h6 class="font-medium m-b-10">Select Layout</h6>
-                <div class="selectgroup layout-color w-50">
-                  <label class="selectgroup-item">
-                    <input type="radio" name="value" value="1" class="selectgroup-input-radio select-layout" checked>
-                    <span class="selectgroup-button">Light</span>
-                  </label>
-                  <label class="selectgroup-item">
-                    <input type="radio" name="value" value="2" class="selectgroup-input-radio select-layout">
-                    <span class="selectgroup-button">Dark</span>
-                  </label>
-                </div>
-              </div>
-              <div class="p-15 border-bottom">
-                <h6 class="font-medium m-b-10">Sidebar Color</h6>
-                <div class="selectgroup selectgroup-pills sidebar-color">
-                  <label class="selectgroup-item">
-                    <input type="radio" name="icon-input" value="1" class="selectgroup-input select-sidebar">
-                    <span class="selectgroup-button selectgroup-button-icon" data-toggle="tooltip"
-                      data-original-title="Light Sidebar"><i class="fas fa-sun"></i></span>
-                  </label>
-                  <label class="selectgroup-item">
-                    <input type="radio" name="icon-input" value="2" class="selectgroup-input select-sidebar" checked>
-                    <span class="selectgroup-button selectgroup-button-icon" data-toggle="tooltip"
-                      data-original-title="Dark Sidebar"><i class="fas fa-moon"></i></span>
-                  </label>
-                </div>
-              </div>
-              <div class="p-15 border-bottom">
-                <h6 class="font-medium m-b-10">Color Theme</h6>
-                <div class="theme-setting-options">
-                  <ul class="choose-theme list-unstyled mb-0">
-                    <li title="white" class="active">
-                      <div class="white"></div>
-                    </li>
-                    <li title="cyan">
-                      <div class="cyan"></div>
-                    </li>
-                    <li title="black">
-                      <div class="black"></div>
-                    </li>
-                    <li title="purple">
-                      <div class="purple"></div>
-                    </li>
-                    <li title="orange">
-                      <div class="orange"></div>
-                    </li>
-                    <li title="green">
-                      <div class="green"></div>
-                    </li>
-                    <li title="red">
-                      <div class="red"></div>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-              <div class="p-15 border-bottom">
-                <div class="theme-setting-options">
-                  <label class="m-b-0">
-                    <input type="checkbox" name="custom-switch-checkbox" class="custom-switch-input"
-                      id="mini_sidebar_setting">
-                    <span class="custom-switch-indicator"></span>
-                    <span class="control-label p-l-10">Mini Sidebar</span>
-                  </label>
-                </div>
-              </div>
-              <div class="p-15 border-bottom">
-                <div class="theme-setting-options">
-                  <label class="m-b-0">
-                    <input type="checkbox" name="custom-switch-checkbox" class="custom-switch-input"
-                      id="sticky_header_setting">
-                    <span class="custom-switch-indicator"></span>
-                    <span class="control-label p-l-10">Sticky Header</span>
-                  </label>
-                </div>
-              </div>
-              <div class="mt-4 mb-4 p-3 align-center rt-sidebar-last-ele">
-                <a href="#" class="btn btn-icon icon-left btn-primary btn-restore-theme">
-                  <i class="fas fa-undo"></i> Restore Default
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
+
       <footer class="main-footer">
         <div class="footer-left">
-          <a href="templateshub.net">Templateshub</a></a>
-        </div>
-        <div class="footer-right">
+          G-HOSPITAL &copy; 2026 - Système de Gestion Intégré
         </div>
       </footer>
     </div>
   </div>
-  <!-- General JS Scripts -->
-  <script src="{% static 'back/assets/js/app.min.js'%}"></script>
-  <!-- JS Libraies -->
-  <script src="{% static 'back/assets/bundles/cleave-js/dist/cleave.min.js'%}"></script>
-  <script src="{% static 'back/assets/bundles/cleave-js/dist/addons/cleave-phone.us.js'%}"></script>
-  <script src="{% static 'back/assets/bundles/jquery-pwstrength/jquery.pwstrength.min.js'%}"></script>
-  <script src="{% static 'back/assets/bundles/bootstrap-daterangepicker/daterangepicker.js'%}"></script>
-  <script src="{% static 'back/assets/bundles/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js'%}"></script>
-  <script src="{% static 'back/assets/bundles/bootstrap-timepicker/js/bootstrap-timepicker.min.js'%}"></script>
-  <script src="{% static 'back/assets/bundles/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js'%}"></script>
-  <script src="{% static 'back/assets/bundles/select2/dist/js/select2.full.min.js'%}"></script>
-  <script src="{% static 'back/assets/bundles/jquery-selectric/jquery.selectric.min.js'%}"></script>
-  <!-- Page Specific JS File -->
-  <script src="{% static 'back/assets/js/page/forms-advanced-forms.js'%}"></script>
-  <!-- Template JS File -->
-  <script src="{% static 'back/assets/js/scripts.js'%}"></script>
-  <!-- Custom JS File -->
-  <script src="{% static 'back/assets/js/custom.js'%}"></script>
+
+  <script src="{% static 'back/assets/js/app.min.js' %}"></script>
+  <script src="{% static 'back/assets/bundles/select2/dist/js/select2.full.min.js' %}"></script>
+  <script src="{% static 'back/assets/js/scripts.js' %}"></script>
+  <script src="{% static 'back/assets/js/custom.js' %}"></script>
+
+  <script>
+    $(document).ready(function() {
+      // Force Select2 sur tous les select
+      $('select').select2({ width: '100%' });
+      
+      // Applique la classe de base à tous les inputs générés par Django
+      $('input, select').addClass('form-control-custom');
+    });
+  </script>
 </body>
-
-
-<!-- forms-advanced-form.html  21 Nov 2019 03:55:08 GMT -->
 </html>

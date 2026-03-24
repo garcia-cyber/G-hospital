@@ -1,0 +1,139 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+  <title>G-Hospital | Historique des Présences</title>
+  
+  <link rel="stylesheet" href="{% static 'back/assets/css/app.min.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'back/assets/css/components.css' %}">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css">
+</head>
+
+<body>
+  <div id="app">
+    <div class="main-wrapper main-wrapper-1">
+      
+      {% include "back/query/nav.html" %}
+
+      {% include "back/query/sidebar.html" %}
+
+      <div class="main-content">
+        <section class="section">
+          <div class="section-header d-flex justify-content-between">
+            <h1><i class="fas fa-history mr-2 text-primary"></i> Historique & Archives</h1>
+            <div class="section-header-breadcrumb">
+                <div class="breadcrumb-item active"><a href="#">Tableau de bord</a></div>
+                <div class="breadcrumb-item">Présences</div>
+            </div>
+          </div>
+
+          <div class="section-body">
+            
+            <div class="card card-primary">
+              <div class="card-header">
+                <h4>Filtrer par date</h4>
+              </div>
+              <div class="card-body">
+                <form method="GET" action="" class="row align-items-end">
+                  <div class="col-md-6">
+                    <label class="font-weight-bold">Sélectionner une date précise :</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
+                        </div>
+                        <input type="date" name="date_selectionnee" class="form-control" value="{{ date_recherche|date:'Y-m-d' }}">
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary btn-lg btn-block shadow-primary">
+                      <i class="fas fa-search"></i> Afficher le rapport
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <div class="card shadow-sm">
+              <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h4>Rapport du : <span class="text-primary">{{ date_recherche|date:"d F Y" }}</span></h4>
+                <div class="card-header-action">
+                    <button onclick="window.print()" class="btn btn-icon icon-left btn-light"><i class="fas fa-print"></i> Imprimer</button>
+                </div>
+              </div>
+              
+              <div class="card-body p-0">
+                <div class="table-responsive">
+                  <table class="table table-striped table-md mb-0">
+                    <thead>
+                      <tr class="bg-light text-dark">
+                        <th style="width: 25%;">Employé</th>
+                        <th style="width: 25%;">Service & Poste</th>
+                        <th class="text-center">Arrivée</th>
+                        <th class="text-center">Départ</th>
+                        <th class="text-center">État</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for item in historique %}
+                      <tr>
+                        <td class="align-middle font-weight-bold">
+                            {{ item.nom|upper }}
+                        </td>
+                        
+                        <td class="align-middle">
+                            <div class="badge badge-light text-uppercase small" style="font-size: 10px;">{{ item.service }}</div><br>
+                            <small class="text-muted">{{ item.poste }}</small>
+                        </td>
+
+                        <td class="text-center align-middle">
+                            <div class="badge badge-success shadow-sm">{{ item.arrivee|time:"H:i" }}</div>
+                        </td>
+
+                        <td class="text-center align-middle">
+                          {% if item.depart %}
+                            <div class="badge badge-danger shadow-sm">{{ item.depart|time:"H:i" }}</div>
+                          {% else %}
+                            <span class="text-muted small italic">Non pointé</span>
+                          {% endif %}
+                        </td>
+
+                        <td class="text-center align-middle">
+                            <span class="text-info small font-weight-bold">
+                                <i class="fas fa-check-double mr-1"></i> Archivé
+                            </span>
+                        </td>
+                      </tr>
+                      {% empty %}
+                      <tr>
+                        <td colspan="5" class="text-center py-5">
+                           <i class="fas fa-folder-open fa-3x mb-3 text-light"></i>
+                           <h6 class="text-muted">Aucun enregistrement pour cette date ({{ date_recherche|date:"d/m/Y" }})</h6>
+                           <p class="small text-muted">Veuillez choisir une autre date dans le formulaire ci-dessus.</p>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+      </div>
+      
+      <footer class="main-footer">
+        <div class="footer-left text-center w-100 font-weight-bold">
+          G-HOSPITAL &copy; 2026 | Système de Pointage Numérique
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <script src="{% static 'back/assets/js/app.min.js' %}"></script>
+  <script src="{% static 'back/assets/js/scripts.js' %}"></script>
+</body>
+</html>

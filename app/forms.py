@@ -1,183 +1,169 @@
-from django import forms 
-from .models import TypeFonction , Patient
+from django import forms
 from django.contrib.auth.models import User
-from .models import * 
+from .models import (
+    TypeFonction, Patient, Fonction, Service, 
+    Prestation, Paiement, Commune
+)
+from .models import *
+from django.core.exceptions import ValidationError
 
-
-# creation du formulaire d'authentification 
-# ==========================================
+# 1. Formulaire d'authentification
 # ==========================================
 class LoginForm(forms.Form):
-    username = forms.CharField(max_length = 30 , widget = forms.TextInput(attrs={'class':'form-control'})) 
-    password = forms.CharField(max_length = 200 , widget = forms.PasswordInput(attrs={'class':'form-control'})) 
+    username = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'class':'form-control'})) 
+    password = forms.CharField(max_length=200, widget=forms.PasswordInput(attrs={'class':'form-control'})) 
 
-
-# creaation du formulaire de type de fonction  
-# ===========================================
+# 2. Formulaire Type de Fonction
 # ===========================================
 class TypeFonctionForm(forms.ModelForm):
-    class Meta :
+    class Meta:
         model = TypeFonction
         fields = ['type_fonction'] 
         widgets = {
             'type_fonction': forms.TextInput(attrs={'class': 'form-control'})
         }
 
+# 3. Formulaire Ajout Employé (User)
 # ===========================================
-# employes add   
-# ===========================================
-
 class EmployeForm(forms.ModelForm):
-    password = forms.CharField(max_length=200 , widget= forms.PasswordInput(attrs={'class':'form-control'}), label='mot de passe utilisateur') 
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        label="Mot de passe utilisateur"
+    )
 
-    class  Meta:
-        model = User 
-        fields = ['username','email','password']
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password']
         widgets = {
-            'username': forms.TextInput(attrs={'class':'form-control'}) ,
-            'email': forms.EmailInput(attrs={'class':'form-control'}) ,
-            
-        }      
-
+            'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: gracia'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'email@g-hospital.cd'}),
+        }
         labels = {
-            'username': 'nom utilisateur' , 
-            'email': 'email utilisateur' , 
-            'password': 'mot de passe utilisateur' , 
+            'username': 'Nom utilisateur',
+            'email': 'Email utilisateur',
+        }
 
-        }  
+    # MÉTHODE DE VALIDATION PERSONNALISÉE
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        # On vérifie si un utilisateur avec ce nom existe déjà (insensible à la casse)
+        if User.objects.filter(username__iexact=username).exists():
+            raise ValidationError(f"L'identifiant '{username}' est déjà utilisé par un autre employé.")
+        return username
 
-# ===================================================
-# mise en jour employe 
-# ===================================================
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data["password"])
+        if commit:
+            user.save()
+        return user
+# 4. Mise à jour Employé
+# ===========================================
 class EmployeUpdateForm(forms.ModelForm):
-    class Meta :
+    class Meta:
         model = User 
         fields = ['username', 'email'] 
         widgets = {
-            'username': forms.TextInput(attrs={'class':'form-control'}) ,
-            'email': forms.EmailInput(attrs={'class':'form-control'}) ,
-
+            'username': forms.TextInput(attrs={'class':'form-control'}),
+            'email': forms.EmailInput(attrs={'class':'form-control'}),
         }
 
-# ====================================================
-# profil employes 
-# ====================================================
+# 5. Profil Employé (CORRIGÉ : Retrait de 'commune')
+# ===========================================
 class ProfilAddForm(forms.ModelForm):
     class Meta:
         model = Fonction 
-        fields = ['fonction','service','etatCivil','phone','adresse','commune'] 
+        # 'commune' est retiré car absent du modèle Fonction
+        fields = ['fonction', 'service', 'etatCivil', 'phone', 'adresse'] 
         widgets = {
-            'fonction': forms.Select(attrs={'class':'form-control'}) ,
-            'service' : forms.Select(attrs={'class':'form-control'}) , 
-            'etatCivil' : forms.Select(attrs={'class':'form-control'}) , 
-            'phone'     : forms.NumberInput(attrs={'class':'form-control'}) ,
-            'adresse'   : forms.TextInput(attrs={'class':'form-control'}) ,
-            'commune'   : forms.Select(attrs={'class':'form-control'}) , 
+            'fonction': forms.Select(attrs={'class':'form-control'}),
+            'service' : forms.Select(attrs={'class':'form-control'}), 
+            'etatCivil' : forms.Select(attrs={'class':'form-control'}), 
+            'phone'     : forms.TextInput(attrs={'class':'form-control'}), # Changé en TextInput pour la flexibilité
+            'adresse'   : forms.TextInput(attrs={'class':'form-control'}),
         }
 
-# ====================================================
-# patient form 
-# ====================================================
+# 6. Formulaire Patient
+# ===========================================
 class PatientForm(forms.ModelForm):
-    class Meta :
+    class Meta:
         model = Patient 
-        fields = ['noms','sexe','age','adresse','poids','service_patient','commune'] 
+        fields = ['noms', 'sexe', 'age', 'phone_responsable','adresse', 'poids', 'service_patient', 'commune']
         widgets = {
-            'noms': forms.TextInput(attrs={'class':'form-control'}) ,
-            'sexe' : forms.Select(attrs={'class':'form-control'}) ,
-            'age'  : forms.NumberInput(attrs={'class':'form-control'}) ,
-            'commune' : forms.Select(attrs={'class':'form-control'}) ,
-            'adresse': forms.TextInput(attrs={'class':'form-control'}) ,
-            'poids' : forms.NumberInput(attrs={'class':'form-control'}) , 
-            'service_patient' : forms.Select(attrs={'class':'form-control'}) ,
+            'noms': forms.TextInput(attrs={'class':'form-control'}),
+            'sexe' : forms.Select(attrs={'class':'form-control'}),
+            'age'  : forms.NumberInput(attrs={'class':'form-control'}),
+            'commune' : forms.Select(attrs={'class':'form-control'}),
+            'adresse': forms.TextInput(attrs={'class':'form-control'}),
+            'poids' : forms.NumberInput(attrs={'class':'form-control'}), 
+            'service_patient' : forms.Select(attrs={'class':'form-control'}),
+            'phone_responsable' : forms.NumberInput(attrs ={'class':'form-control'})
         }
 
-    def __init__(self , *args , **kwargs):
-        super(PatientForm,self).__init__(*args,**kwargs)
-        self.fields['service_patient'].queryset = Service.objects.filter(service__in = ['pediatrie','gyneco'])
+        labels = {
+            'noms' : 'noms du patient'
+        }
+
+    def __init__(self,*args , **kwargs):
+        super(PatientForm,self).__init__(*args , **kwargs)
+        self.fields['service_patient'].queryset = Service.objects.filter(nom__in = ['gyneco','pediatrie' , 'maternite','medecin interne'])
 
 
 
 
-# =============================================
-# prestation formulaire
-# =============================================
-
-
-
-
+# 7. Formulaire Encaissement Global
+# ===========================================
 class EncaissementGlobalForm(forms.ModelForm):
     prestation = forms.ModelChoiceField(
-        queryset=Prestation.objects.all(),
-        label="Sélectionner la prestation",
-        widget=forms.Select(attrs={'class': 'form-control'})
+        queryset=Prestation.objects.filter(active=True, est_fiche_obligatoire=True),
+        label="Type de Fiche",
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-control', 'id': 'id_prestation'})
     )
 
     class Meta:
         model = Paiement
-        fields = ['montant_verse']
+        fields = ['montant_verse', 'prestation']
         widgets = {
-            'montant_verse': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Montant versé'})
+            'montant_verse': forms.NumberInput(attrs={
+                'class': 'form-control form-control-lg text-center font-weight-bold',
+                'id': 'id_montant_verse',
+                'step': '0.01'
+            })
         }
+
+    def __init__(self, *args, **kwargs):
+        self.facture = kwargs.pop('facture', None)
+        super().__init__(*args, **kwargs)
 
     def clean(self):
         cleaned_data = super().clean()
-        prestation_choisie = cleaned_data.get('prestation')
-        montant_donne = cleaned_data.get('montant_verse')
+        montant = cleaned_data.get('montant_verse')
+        prestation = cleaned_data.get('prestation')
 
-        # Nous n'avons pas accès au patient ici facilement, 
-        # donc on garde une validation de base sur le prix total.
-        if prestation_choisie and montant_donne:
-            prix_total = prestation_choisie.prix_fixe
-
-            # 1. Empêcher de donner plus que le prix de base de la prestation
-            if montant_donne > prix_total:
-                raise forms.ValidationError(
-                    f"Erreur : Le montant saisi ({montant_donne} CDF) est supérieur au prix de la prestation ({prix_total} CDF)."
-                )
+        if montant and prestation:
+            # CAS 1 : C'est une nouvelle facture (Premier paiement)
+            if not self.facture:
+                prix_max = prestation.prix_fixe
+                if montant > prix_max:
+                    raise forms.ValidationError(
+                        f"Erreur : Le prix de la prestation '{prestation.nom}' est de {prix_max} FC. "
+                        f"Vous ne pouvez pas encaisser {montant} FC."
+                    )
             
-            # 2. Empêcher de saisir 0 ou un montant négatif
-            if montant_donne <= 0:
-                raise forms.ValidationError("Le montant versé doit être supérieur à 0.")
-        
+            # CAS 2 : C'est un paiement pour une facture existante (Tranche)
+            else:
+                reste = self.facture.reste_a_payer
+                if montant > reste:
+                    raise forms.ValidationError(
+                        f"Erreur : Le reste à payer pour cette facture est de {reste} FC. "
+                        f"Le montant versé ({montant} FC) est trop élevé."
+                    )
+
         return cleaned_data
-    
-
-
-    
-
-
+# 8. Formulaire Encaissement (Vue Facture)
 # ===========================================
-# On ajoute le choix de la prestation dans le formulaire
-# ===================================
-
-# class EncaissementForm(forms.ModelForm):
-#     # On ajoute le choix de la prestation dans le formulaire
-#     prestation = forms.ModelChoiceField(queryset=Prestation.objects.all())
-
-#     class Meta:
-#         model = Paiement
-#         fields = ['montant_verse']
-
-
-
-# ==============================================
-# nouveau dossier pour mon formulaire facture 
-# ===============================================
-# class EncaissementInitialForm(forms.Form):
-#     prestation = forms.ModelChoiceField(
-#         queryset=Prestation.objects.all(),
-#         widget=forms.Select(attrs={'class': 'form-control select2'})
-#     )
-#     montant_verse = forms.DecimalField(
-#         max_digits=10, 
-#         decimal_places=2,
-#         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Montant à payer...'})
-#     )
-
 class EncaissementForm(forms.Form):
-    # On laisse required=False pour la prestation car si on paie une dette existante, 
-    # la prestation est déjà connue dans la facture.
     prestation = forms.ModelChoiceField(
         queryset=Prestation.objects.all(),
         required=False,
@@ -188,3 +174,33 @@ class EncaissementForm(forms.Form):
         decimal_places=2,
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '0.00'})
     )
+
+
+
+# 9. prestation 
+# ===============================================
+class PrestationForm(forms.ModelForm):
+    class Meta:
+        model = Prestation
+        # fields = ['libelle', 'prix_fixe', 'service', 'type_prestation', 'est_fiche_obligatoire', 'active']
+        fields = ['libelle', 'prix_fixe','type_prestation', 'est_fiche_obligatoire', 'active']
+        widgets = {
+            'libelle': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: Consultation Générale'}),
+            'prix_fixe': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Montant en FC'}),
+            # 'service': forms.Select(attrs={'class': 'form-control select2'}),
+            'type_prestation': forms.Select(attrs={'class': 'form-control'}),
+            # Note : Pour les checkbox, 'custom-control-input' demande souvent un container <div> spécifique en HTML
+            'est_fiche_obligatoire': forms.CheckboxInput(attrs={'class': 'custom-control-input'}),
+            'active': forms.CheckboxInput(attrs={'class': 'custom-control-input'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        # CORRECTION 1 : On utilise PrestationForm ici, PAS PatientForm
+        super(PrestationForm, self).__init__(*args, **kwargs)
+        
+        # CORRECTION 2 : Le champ s'appelle 'service' dans ton modèle Prestation (pas service_patient)
+        # On s'assure que le champ existe avant de le filtrer pour éviter d'autres erreurs
+        # if 'service' in self.fields:
+        #     self.fields['service'].queryset = Service.objects.all() 
+            # Si tu veux filtrer spécifiquement :
+            # self.fields['service'].queryset = Service.objects.filter(nom__icontains='pediatrie')
