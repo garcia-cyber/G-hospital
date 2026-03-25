@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
     <title>G-HOSPITAL | Dashboard</title>
-    
     <link rel="stylesheet" href="{% static 'back/assets/css/app.min.css' %}">
     <link rel="stylesheet" href="{% static 'back/assets/css/style.css' %}">
     <link rel="stylesheet" href="{% static 'back/assets/css/components.css' %}">
@@ -22,58 +21,46 @@
                 <section class="section">
                     
                     <div class="row">
-                        {% if fonction == 'admin' %}
-
-                            <div class="col-lg-4 col-md-6 col-12">
+                        {% if "admin" in fonction %}
+                        <div class="col-lg-3 col-md-6 col-12">
                             <div class="card card-statistic-1 shadow-sm border-left border-secondary">
-                                <div class="card-icon bg-danger"><i class="fas fa-user-injured"></i></div>
+                                <div class="card-icon bg-danger"><i class="fas fa-users"></i></div>
                                 <div class="card-wrap">
                                     <div class="card-header"><h4>Total Users</h4></div>
-                                    <div class="card-body">{{ fonction_nombre }}</div>
+                                    <div class="card-body">{{ userCount }}</div>
                                 </div>
                             </div>
                         </div>
-
                         {% endif %}
 
-                        <div class="col-lg-4 col-md-6 col-12">
+                        {% if "admin" in fonction or "reception" in fonction %}
+                        <div class="col-lg-3 col-md-6 col-12">
+                            <div class="card card-statistic-1 shadow-sm border-left border-success">
+                                <div class="card-icon bg-success"><i class="fas fa-money-bill-wave"></i></div>
+                                <div class="card-wrap">
+                                    <div class="card-header"><h4>Recettes Totales</h4></div>
+                                    <div class="card-body">{{ total_entrees|default:"0" }} <small style="font-size: 10px;">CDF</small></div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="col-lg-3 col-md-6 col-12">
                             <div class="card card-statistic-1 shadow-sm border-left border-primary">
                                 <div class="card-icon bg-primary"><i class="fas fa-user-shield"></i></div>
                                 <div class="card-wrap">
                                     <div class="card-header"><h4>Rôle</h4></div>
-                                    <div class="card-body" style="font-size: 14px;">{{ role_affichage }}</div>
+                                    <div class="card-body" style="font-size: 13px;">{{ role_affichage }}</div>
                                 </div>
                             </div>
                         </div>
 
-
-
-
-                        
-
-
-                        
-                        <div class="col-lg-4 col-md-6 col-12">
-                            <div class="card card-statistic-1 shadow-sm border-left border-danger">
-                                <div class="card-icon bg-danger"><i class="fas fa-user-injured"></i></div>
-                                <div class="card-wrap">
-                                    <div class="card-header"><h4>Total Patients</h4></div>
-                                    <div class="card-body">{{ patientCount }}</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6 col-12">
+                        <div class="col-lg-3 col-md-6 col-12">
                             <div class="card card-statistic-1 shadow-sm border-left border-info">
                                 <div class="card-icon bg-info"><i class="fas fa-hospital"></i></div>
                                 <div class="card-wrap">
-                                    <div class="card-header"><h4>Service Actuel</h4></div>
-                                    <div class="card-body" style="font-size: 14px; font-weight: bold;">
-                                        {% if mon_service %}
-                                            {{ mon_service.nom_service }}{{ mon_service.nom }}{{ mon_service.libelle }}
-                                        {% else %}
-                                            <span class="text-danger">Non assigné</span>
-                                        {% endif %}
-                                    </div>
+                                    <div class="card-header"><h4>Service</h4></div>
+                                    <div class="card-body" style="font-size: 14px; font-weight: bold;">{{ mon_service.nom|default:"Direction" }}</div>
                                 </div>
                             </div>
                         </div>
@@ -81,35 +68,23 @@
 
                     <hr>
 
-                    {% if fonction == 'admin' or fonction == 'administrateur' %}
+                    {% if "admin" in fonction %}
                     <div class="card card-primary">
-                        <div class="card-header"><h4><i class="fas fa-users-cog text-primary"></i> Gestion du Personnel & Connexions</h4></div>
+                        <div class="card-header d-flex justify-content-between">
+                            <h4><i class="fas fa-users-cog"></i> Personnel</h4>
+                            <input type="text" id="searchPersonnel" class="form-control col-md-3" placeholder="Rechercher agent...">
+                        </div>
                         <div class="card-body p-0">
                             <div class="table-responsive">
-                                <table class="table table-striped text-center">
-                                    <thead>
-                                        <tr>
-                                            <th>Utilisateur</th>
-                                            <th>Fonction</th>
-                                            <th>Dernière Connexion</th>
-                                            <th>Statut</th>
-                                        </tr>
-                                    </thead>
+                                <table class="table table-striped text-center" id="personnelTable">
+                                    <thead><tr><th>Agent</th><th>Fonction</th><th>Dernière connexion</th><th>Statut</th></tr></thead>
                                     <tbody>
                                         {% for u in tous_les_utilisateurs %}
                                         <tr>
-                                            <td class="font-weight-bold text-uppercase">{{ u.user_fonction.username }}</td>
+                                            <td class="text-uppercase font-weight-bold">{{ u.user_fonction.username }}</td>
                                             <td><span class="badge badge-primary">{{ u.fonction.type_fonction }}</span></td>
-                                            <td>
-                                                <i class="far fa-clock"></i> {{ u.user_fonction.last_login|date:"d/m/Y H:i"|default:"Jamais" }}
-                                            </td>
-                                            <td>
-                                                {% if u.user_fonction.is_active %}
-                                                    <span class="text-success"><i class="fas fa-check"></i> Actif</span>
-                                                {% else %}
-                                                    <span class="text-danger"><i class="fas fa-times"></i> Inactif</span>
-                                                {% endif %}
-                                            </td>
+                                            <td>{{ u.user_fonction.last_login|date:"d/m/Y H:i"|default:"--" }}</td>
+                                            <td>{% if u.user_fonction.is_active %}<div class="badge badge-success">Actif</div>{% else %}<div class="badge badge-danger">Bloqué</div>{% endif %}</td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
@@ -119,26 +94,43 @@
                     </div>
                     {% endif %}
 
-                    {% if fonction == 'infirmie' or fonction == 'infirmier' %}
-                    <div class="card card-warning shadow-sm">
-                        <div class="card-header"><h4><i class="fas fa-notes-medical"></i> Patients en attente de Triage</h4></div>
+                    {% if "reception" in fonction %}
+                    <div class="card card-info">
+                        <div class="card-header d-flex justify-content-between">
+                            <h4><i class="fas fa-users"></i> Patients</h4>
+                            <input type="text" id="searchPatient" class="form-control col-md-3" placeholder="Filtrer patient...">
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-striped text-center" id="patientTable">
+                                    <thead><tr><th>ID</th><th>Nom</th><th>Âge/Sexe</th><th>Service</th></tr></thead>
+                                    <tbody>
+                                        {% for p in liste_patients %}
+                                        <tr>
+                                            <td>#{{ p.id }}</td>
+                                            <td class="text-uppercase font-weight-bold">{{ p.noms }}</td>
+                                            <td>{{ p.age }} ans / {{ p.sexe }}</td>
+                                            <td><span class="badge badge-light">{{ p.service_patient.nom|default:"--" }}</span></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if "infirmie" in fonction %}
+                    <div class="card card-warning">
+                        <div class="card-header"><h4><i class="fas fa-notes-medical"></i> File d'attente</h4></div>
                         <div class="card-body p-0">
                             <table class="table table-striped text-center">
-                                <thead>
-                                    <tr>
-                                        <th>Patient</th>
-                                        <th>Prestation</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
+                                <thead><tr><th>Patient</th><th>Action</th></tr></thead>
                                 <tbody>
                                     {% for f in file_attente %}
                                     <tr>
-                                        <td class="font-weight-bold">{{ f.patient.noms }}</td>
-                                        <td>{{ f.prestation.libelle }}</td>
-                                        <td>
-                                            <a href="{% url 'creer_consultation' facture_id=f.id %}" class="btn btn-warning btn-sm">Prendre Constantes</a>
-                                        </td>
+                                        <td class="font-weight-bold">{{ f.patient.noms|upper }}</td>
+                                        <td><a href="{% url 'creer_consultation' facture_id=f.id %}" class="btn btn-warning btn-sm">Prélever</a></td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -146,25 +138,17 @@
                         </div>
                     </div>
 
-                    <div class="card card-secondary mt-4 shadow-sm">
-                        <div class="card-header"><h4><i class="fas fa-history"></i> Mon Historique de Triage (Aujourd'hui)</h4></div>
+                    <div class="card card-dark mt-4">
+                        <div class="card-header"><h4><i class="fas fa-history"></i> Historique (Prélevés)</h4></div>
                         <div class="card-body p-0">
-                            <table class="table table-sm table-striped text-center">
-                                <thead>
-                                    <tr>
-                                        <th>Heure</th>
-                                        <th>Patient</th>
-                                        <th>Temp.</th>
-                                        <th>Tension</th>
-                                    </tr>
-                                </thead>
+                            <table class="table table-sm text-center">
+                                <thead><tr><th>Heure</th><th>Patient</th><th>T° / Tension</th></tr></thead>
                                 <tbody>
-                                    {% for c in historique_triage %}
+                                    {% for h in historique_service %}
                                     <tr>
-                                        <td>{{ c.date_creation|time:"H:i" }}</td>
-                                        <td>{{ c.patient.noms }}</td>
-                                        <td>{{ c.temperature }}°C</td>
-                                        <td>{{ c.tension }}</td>
+                                        <td>{{ h.date_creation|date:"H:i" }}</td>
+                                        <td class="text-uppercase">{{ h.patient.noms }}</td>
+                                        <td>{{ h.temperature }}°C / {{ h.tension }}</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -173,35 +157,83 @@
                     </div>
                     {% endif %}
 
-                    {% if fonction == 'medecin' %}
-                    <div class="card card-danger shadow-sm">
-                        <div class="card-header"><h4><i class="fas fa-user-md"></i> Consultations (Signes Vitaux Reçus)</h4></div>
+                    {% if "medecin" in fonction %}
+                    <div class="card card-danger">
+                        <div class="card-header"><h4><i class="fas fa-user-md"></i> Consultation</h4></div>
                         <div class="card-body p-0">
-                            <div class="table-responsive">
-                                <table class="table table-striped text-center">
-                                    <thead>
-                                        <tr>
-                                            <th>Patient</th>
-                                            <th>Température</th>
-                                            <th>Tension</th>
-                                            <th>Poids</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for obj in file_attente %}
-                                        <tr>
-                                            <td class="font-weight-bold text-uppercase">{{ obj.patient.noms }}</td>
-                                            <td><span class="badge badge-info">{{ obj.temperature }}°C</span></td>
-                                            <td><span class="badge badge-warning">{{ obj.tension }}</span></td>
-                                            <td><span class="badge badge-primary">{{ obj.poids }} kg</span></td>
-                                            <td>
-                                                <a href="{% url 'faire_consultation' consultation_id=obj.id %}" class="btn btn-danger btn-sm">Examiner</a>
-                                            </td>
-                                        </tr>
+                            <table class="table table-striped text-center">
+                                <thead><tr><th>Patient</th><th>Paramètres</th><th>Action</th></tr></thead>
+                                <tbody>
+                                    {% for obj in file_attente %}
+                                    <tr>
+                                        <td class="font-weight-bold text-uppercase">{{ obj.patient.noms }}</td>
+                                        <td>{{ obj.temperature }}°C / {{ obj.tension }}</td>
+                                        <td><a href="{% url 'faire_consultation' consultation_id=obj.id %}" class="btn btn-danger btn-sm">Examiner</a></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if "pharmacien" in fonction %}
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="card card-primary">
+                                <div class="card-header d-flex justify-content-between">
+                                    <h4><i class="fas fa-pills"></i> Inventaire Pharmacie</h4>
+                                    <input type="text" id="searchPharma" class="form-control col-md-4" placeholder="Filtrer médicament...">
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped" id="pharmaTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Médicament</th>
+                                                    <th>Stock Unités</th>
+                                                    <th>Prix (G/D)</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for p in inventaire %}
+                                                <tr>
+                                                    <td><strong>{{ p.designation }}</strong><br><small class="text-muted">{{ p.forme }}</small></td>
+                                                    <td>
+                                                        {% if p.stock_total_unites <= 10 %}
+                                                            <span class="badge badge-danger">{{ p.stock_total_unites }}</span>
+                                                        {% else %}
+                                                            <span class="badge badge-success">{{ p.stock_total_unites }}</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>{{ p.prix_vente_gros }} / {{ p.prix_vente_detail }}</td>
+                                                    <td>
+                                                        <button class="btn btn-primary btn-sm"><i class="fas fa-cart-plus"></i> Vendre</button>
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card card-warning">
+                                <div class="card-header"><h4>Alertes Péremption</h4></div>
+                                <div class="card-body p-0">
+                                    <ul class="list-group list-group-flush">
+                                        {% for lot in alertes_peremption %}
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            {{ lot.produit.designation }}
+                                            <span class="badge badge-pill badge-danger">{{ lot.date_peremption|date:"d M y" }}</span>
+                                        </li>
+                                        {% empty %}
+                                        <li class="list-group-item text-center">Aucune alerte proche</li>
                                         {% endfor %}
-                                    </tbody>
-                                </table>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -209,14 +241,30 @@
 
                 </section>
             </div>
-            
-            <footer class="main-footer">
-                <div class="footer-left">Copyright &copy; 2026 G-HOSPITAL</div>
-            </footer>
         </div>
     </div>
 
     <script src="{% static 'back/assets/js/app.min.js' %}"></script>
     <script src="{% static 'back/assets/js/scripts.js' %}"></script>
+
+    <script>
+        function setupSearch(inputId, tableId, colIndex) {
+            let input = document.getElementById(inputId);
+            if (input) {
+                input.addEventListener('keyup', function() {
+                    let filter = this.value.toUpperCase();
+                    let rows = document.querySelector(`#${tableId} tbody`).rows;
+                    for (let i = 0; i < rows.length; i++) {
+                        let text = rows[i].cells[colIndex].textContent.toUpperCase();
+                        rows[i].style.display = text.includes(filter) ? "" : "none";
+                    }
+                });
+            }
+        }
+        // Activation des recherches
+        setupSearch('searchPersonnel', 'personnelTable', 0);
+        setupSearch('searchPatient', 'patientTable', 1);
+        setupSearch('searchPharma', 'pharmaTable', 0);
+    </script>
 </body>
 </html>

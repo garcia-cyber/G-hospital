@@ -63,4 +63,7 @@ urlpatterns = [
     path('materiel/ajouter/', views.ajouter_materiel, name='ajouter_materiel'),
     path('materiel/liste/', views.liste_materiel, name='liste_materiel'),
     path('materiel/categories/', views.gestion_categories, name='gestion_categories'),
+
+    # Route pour enregistrer l'achat / approvisionnement du stock
+    path('pharmacie/ajouter-stock/', views.ajouter_stock, name='ajouter_stock'),
 ]

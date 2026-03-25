@@ -93,6 +93,21 @@
       </li>
       {% endif %}
 
+      {% if fonction == 'pharmacien' %}
+      <li class="menu-header">Gestion Pharmacie</li>
+      <li class="dropdown active">
+        <a href="#" class="menu-toggle nav-link has-dropdown"><i data-feather="shopping-bag"></i><span>Stocks & Ventes</span></a>
+        <ul class="dropdown-menu">
+          <li><a class="nav-link" href="{% url 'panel' %}">Tableau de bord</a></li>
+          
+          <li><a class="nav-link text-primary font-weight-bold" href="#" data-toggle="modal" data-target="#modalAchat"><i class="fas fa-plus-circle"></i> Nouvel Arrivage</a></li>
+          
+          <li><a class="nav-link" href="#">Historique Ventes</a></li>
+          <li><a class="nav-link" href="#">Arrivages / Lots</a></li>
+        </ul>
+      </li>
+      {% endif %}
+
     </ul>
 
     <div class="mt-4 mb-4 p-3 hide-sidebar-mini">

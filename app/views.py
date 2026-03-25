@@ -18,6 +18,7 @@ from django.http import HttpResponse  # <-- AJOUTE CETTE LIGNE ICI
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 from datetime import date
+from django.core.paginator import Paginator
 
 # Create your views here.
 
@@ -58,18 +59,17 @@ def deco(request):
 # =============================================================
 @login_required()
 def panel(request):
-    # 1. On récupère la liaison Utilisateur <-> Fonction <-> Service
     myUser = Fonction.objects.filter(user_fonction=request.user).select_related('fonction', 'service').first()
-    
-    # 2. Sécurité pour le rôle et le service
-    role_affichage = myUser.fonction.type_fonction if myUser and myUser.fonction else "Utilisateur"
-    fonction_slug = role_affichage.strip().lower().replace('é', 'e')
-    mon_service = myUser.service if myUser else None
+    if not myUser:
+        return render(request, 'back/index.html', {'error': "Profil non trouvé."})
 
+    role_affichage = myUser.fonction.type_fonction
+    fonction_slug = str(role_affichage).strip().lower().replace('é', 'e')
+    mon_service = myUser.service
 
-    # compte les nombres 
-    # 
-    fonction_nombre = Fonction.objects.count()
+    total_entrees = 0
+    if "admin" in fonction_slug or "reception" in fonction_slug:
+        total_entrees = Transaction.objects.aggregate(Sum('montant'))['montant__sum'] or 0
 
     context = {
         'userCount': User.objects.count(),
@@ -77,35 +77,41 @@ def panel(request):
         'role_affichage': role_affichage,
         'fonction': fonction_slug,
         'mon_service': mon_service,
-        'fonction_nombre' : fonction_nombre , 
+        'total_entrees': total_entrees,
     }
 
+    if "admin" in fonction_slug:
+        utilisateurs_list = Fonction.objects.all().select_related('user_fonction', 'fonction', 'service').order_by('user_fonction__username')
+        paginator_u = Paginator(utilisateurs_list, 10)
+        context['tous_les_utilisateurs'] = paginator_u.get_page(request.GET.get('page_u'))
 
+    elif "reception" in fonction_slug:
+        patients_list = Patient.objects.all().order_by('-id')
+        paginator_p = Paginator(patients_list, 10)
+        context['liste_patients'] = paginator_p.get_page(request.GET.get('page_p'))
 
+    elif "infirmie" in fonction_slug:
+        if mon_service:
+            factures = Facture.objects.filter(patient__service_patient=mon_service, consultation__isnull=True).select_related('patient')
+            context['file_attente'] = [f for f in factures if f.est_soldee]
+            context['historique_service'] = Consultation.objects.filter(patient__service_patient=mon_service).select_related('patient', 'infirmier_triage').order_by('-date_creation')[:15]
 
-    # --- LOGIQUE ADMINISTRATEUR ---
-    if fonction_slug in ['admin', 'administrateur']:
-        context['tous_les_utilisateurs'] = Fonction.objects.all().select_related('user_fonction', 'fonction', 'service')
+    elif "medecin" in fonction_slug:
+        if mon_service:
+            context['file_attente'] = Consultation.objects.filter(statut='DOCTEUR', patient__service_patient=mon_service).select_related('patient').order_by('-date_creation')
 
-    # --- LOGIQUE INFIRMIER ---
-    elif fonction_slug in ['infirmie', 'infirmier']:
-        context['file_attente'] = Facture.objects.filter(
-            consultation__isnull=True, 
-            prestation__service=mon_service
-        ).select_related('patient', 'prestation')
+    # --- AJOUT SECTION PHARMACIE ---
+    elif "pharmacien" in fonction_slug:
+        tous_produits = Produit.objects.all().select_related('famille')
+        context['inventaire'] = tous_produits
         
-        # Utilisation de date.today() pour l'historique
-        context['historique_triage'] = Consultation.objects.filter(
-            infirmier_triage=request.user,
-            date_creation__date=date.today()
-        ).select_related('patient').order_by('-date_creation')
-
-    # --- LOGIQUE MÉDECIN ---
-    elif fonction_slug == 'medecin':
-        context['file_attente'] = Consultation.objects.filter(
-            statut='DOCTEUR', 
-            service=mon_service
-        ).select_related('patient').order_by('-date_creation')
+        # Alertes de péremption (dans les 90 jours)
+        limit_date = timezone.now().date() + timezone.timedelta(days=90)
+        context['alertes_peremption'] = Lot.objects.filter(
+            date_peremption__lte=limit_date, 
+            quantite_actuelle__gt=0
+        ).order_by('date_peremption')
+    # --- FIN AJOUT ---
 
     return render(request, 'back/index.html', context)
 # =============================================================
@@ -1075,3 +1081,68 @@ def prelever_signes(request, consultation_id):
         'consultation': consultation, 
         'fonction': fonction
     })
+
+# ======================================================================================================
+# ajout des stocks 
+# ======================================================================================================
+@login_required()
+def ajouter_stock(request):
+    if request.method == "POST":
+        try:
+            # Récupération des données du formulaire
+            produit_id = request.POST.get('produit_id')
+            numero_lot = request.POST.get('numero_lot')
+            qte_boites = int(request.POST.get('quantite_boites', 0))
+            prix_achat_boite = Decimal(request.POST.get('prix_achat_boite', 0))
+            date_peremption = request.POST.get('date_peremption')
+
+            # Validation de base
+            if qte_boites <= 0 or prix_achat_boite <= 0:
+                messages.error(request, "La quantité et le prix doivent être supérieurs à zéro.")
+                return redirect('panel')
+
+            produit = get_object_or_404(Produit, id=produit_id)
+
+            # Calculs
+            # Conversion : ex 10 boites de 30 comprimés = 300 unités de détail
+            total_unites = qte_boites * produit.coefficient_conversion
+            # Coût total de l'achat pour la caisse
+            cout_total = qte_boites * prix_achat_boite
+
+            # Utilisation d'une transaction atomique pour garantir que 
+            # le stock et la finance sont mis à jour ensemble
+            with transaction.atomic():
+                # 1. Création du Lot
+                nouveau_lot = Lot.objects.create(
+                    produit=produit,
+                    numero_lot=numero_lot,
+                    quantite_initiale=total_unites,
+                    quantite_actuelle=total_unites,
+                    prix_achat_total_lot=cout_total,
+                    date_peremption=date_peremption
+                )
+
+                # 2. Enregistrement du mouvement de stock (Traçabilité)
+                MouvementStock.objects.create(
+                    produit=produit,
+                    lot=nouveau_lot,
+                    type_mouvement='ENTREE',
+                    quantite=total_unites,
+                    motif=f"Achat de {qte_boites} boîtes",
+                    agent=request.user
+                )
+
+                # 3. Enregistrement de la dépense en finance (SORTIE de caisse)
+                Transaction.objects.create(
+                    montant=cout_total,
+                    description=f"Achat Stock : {produit.designation} (Lot {numero_lot})",
+                    type_transaction='SORTIE',
+                    agent=request.user
+                )
+
+            messages.success(request, f"Entrée réussie : {total_unites} unités de {produit.designation} ajoutées.")
+            
+        except Exception as e:
+            messages.error(request, f"Erreur lors de l'ajout : {str(e)}")
+            
+    return redirect('panel')

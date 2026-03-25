@@ -179,3 +179,31 @@ class MouvementStockAdmin(admin.ModelAdmin):
 class CategorieAdmin(admin.ModelAdmin):
     list_display = ('nom',)
     search_fields = ('nom',)
+
+
+@admin.register(FamilleProduit)
+class FamilleProduitAdmin(admin.ModelAdmin):
+    list_display = ['nom']
+
+@admin.register(Produit)
+class ProduitAdmin(admin.ModelAdmin):
+    list_display = ['designation', 'famille', 'forme', 'prix_vente_gros', 'prix_vente_detail']
+    list_filter = ['famille', 'forme']
+    search_fields = ['designation']
+
+@admin.register(Lot)
+class LotAdmin(admin.ModelAdmin):
+    # On remplace 'quantite_actuelle_unites' par le nom exact de ton modèle
+    list_display = ('produit', 'numero_lot', 'quantite_actuelle', 'date_peremption')
+    list_filter = ('date_peremption',)
+    search_fields = ('numero_lot', 'produit__designation')
+    
+
+@admin.register(MouvementPharmacie)
+class MouvementStockAdmin(admin.ModelAdmin):
+    # Utilise 'type_mouv' (le nom exact dans ton modèle)
+    list_display = ['date_mouvement', 'produit', 'type_mouv', 'quantite', 'agent']
+    list_filter = ['type_mouv', 'date_mouvement', 'produit__famille']
+    search_fields = ['produit__designation', 'commentaire']
+
+# --- ATTENTION : Vérifie qu'il n'y a RIEN en dessous de cette ligne ---

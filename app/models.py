@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models import Sum
+from django.db.models import Sum , F
 from django.conf import settings # Pour lier l'utilisateur connecté
 from django.utils import timezone
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
@@ -20,6 +20,10 @@ class TypeFonction(models.Model):
 
     def __str__(self):
         return self.type_fonction
+
+# ==============================================================================
+# service 
+# ==============================================================================
 
 class Service(models.Model):
     # Correction : On utilise 'nom' au lieu de 'service'
@@ -144,9 +148,7 @@ class Prestation(models.Model):
     def __str__(self):
         return f"{self.libelle} - {self.prix_fixe}"
 
-# ===============================================================
-# FACTURE (CORRIGÉE)
-# ================================================================
+
 
 from decimal import Decimal
 
@@ -419,3 +421,105 @@ class Transaction(models.Model):
 
     def __str__(self):
         return f"{self.date_heure} - {self.agent.username} - {self.montant}"
+
+
+# ==============================================================================
+# gestion de pharmacie 
+# ==============================================================================
+
+# 1. Catégorisation des médicaments
+class FamilleProduit(models.Model):
+    nom = models.CharField(max_length=100, unique=True) # ex: Antibiotique, Soluté
+    def __str__(self): return self.nom
+
+# 2. Le Produit (Référentiel)
+class Produit(models.Model):
+    designation = models.CharField(max_length=200)
+    famille = models.ForeignKey(FamilleProduit, on_delete=models.SET_NULL, null=True)
+    forme = models.CharField(max_length=50) # ex: Gélule, Sirop
+    
+    # Configuration Gros vs Détail
+    unite_gros = models.CharField(max_length=20, default="Boîte")
+    unite_detail = models.CharField(max_length=20, default="Comprimé")
+    coefficient = models.PositiveIntegerField(help_text="Nombre de détails dans 1 gros (ex: 30)")
+    
+    # Prix de vente (Détail et Gros)
+    prix_vente_gros = models.DecimalField(max_digits=12, decimal_places=2)
+    prix_vente_detail = models.DecimalField(max_digits=12, decimal_places=2)
+    
+    # Alertes
+    stock_alerte_unites = models.PositiveIntegerField(default=10, help_text="Alerte en unités de détail")
+
+    def __str__(self):
+        return f"{self.designation} ({self.unite_gros})"
+
+    @property
+    def stock_total_unites(self):
+        """Calcule le stock total disponible en unités de détail (comprimés)."""
+        aujourdhui = timezone.now().date()
+        total = self.lots.filter(date_peremption__gt=aujourdhui).aggregate(Sum('quantite_actuelle'))['quantite_actuelle__sum']
+        return total or 0
+
+    @property
+    def alerte_rupture(self):
+        """Retourne True si le stock est en dessous du seuil."""
+        return self.stock_total_unites <= self.stock_alerte_unites
+
+# 3. Les Lots (Entrées et Péremption)
+class Lot(models.Model):
+    produit = models.ForeignKey(Produit, on_delete=models.CASCADE, related_name='lots')
+    numero_lot = models.CharField(max_length=100)
+    
+    # Stockage en unités de détail
+    quantite_initiale = models.PositiveIntegerField() 
+    quantite_actuelle = models.PositiveIntegerField()
+    
+    # Traçabilité financière
+    prix_achat_total_lot = models.DecimalField(max_digits=12, decimal_places=2, help_text="Prix payé au fournisseur pour ce lot entier")
+    date_peremption = models.DateField()
+    date_reception = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Lot {self.numero_lot} - {self.produit.designation}"
+
+    @property
+    def est_perime(self):
+        return self.date_peremption <= timezone.now().date()
+
+    @property
+    def prix_achat_unitaire_detail(self):
+        """Calcule combien une seule unité (ex: 1 comprimé) vous a coûté à l'achat"""
+        if self.quantite_initiale > 0:
+            return self.prix_achat_total_lot / self.quantite_initiale
+        return Decimal('0.00')
+
+    @property
+    def benefice_unitaire_detail(self):
+        """Bénéfice réalisé sur la vente d'une unité de détail"""
+        return self.produit.prix_vente_detail - self.prix_achat_unitaire_detail
+
+# 4. Les Mouvements (Ventes et Sorties)
+class MouvementPharmacie(models.Model):
+    TYPE_MOUVEMENT = [
+        ('VENTE_GROS', 'Vente en Gros'),
+        ('VENTE_DETAIL', 'Vente au Détail'),
+        ('ENTREE', 'Approvisionnement'),
+        ('PERTE', 'Casse / Périmé'),
+    ]
+    
+    produit = models.ForeignKey(Produit, on_delete=models.CASCADE)
+    lot = models.ForeignKey(Lot, on_delete=models.CASCADE)
+    type_mouv = models.CharField(max_length=20, choices=TYPE_MOUVEMENT)
+    quantite = models.IntegerField(help_text="En unités de détail (comprimés)")
+    agent = models.ForeignKey(User, on_delete=models.CASCADE)
+    date_mouvement = models.DateTimeField(auto_now_add=True)
+    commentaire = models.TextField(blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        """Mise à jour automatique du stock du lot lors de la sauvegarde."""
+        if not self.pk: # Seulement à la création
+            # Si c'est une sortie (vente ou perte), on réduit le stock du lot
+            if self.type_mouv in ['VENTE_GROS', 'VENTE_DETAIL', 'PERTE']:
+                self.lot.quantite_actuelle -= abs(self.quantite)
+                self.lot.save()
+        super().save(*args, **kwargs)
