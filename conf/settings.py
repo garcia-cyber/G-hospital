@@ -1,15 +1,30 @@
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 
-# Chemins de base
+# --- 1. CHEMINS DE BASE ---
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Sécurité
-SECRET_KEY = 'django-insecure-bqa7p(8i2e9gdu_^2w7doe_t5wr0!(*0grbjpm+2r)lw)$c(ng'
-DEBUG = True
-ALLOWED_HOSTS = []
+# --- 2. CHARGEMENT DU .ENV ---
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
-# Applications
+# --- 3. SÉCURITÉ ---
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-local-dev-key')
+
+if not DEBUG:
+    ALLOWED_HOSTS = [os.environ.get('RENDER_EXTERNAL_HOSTNAME', 'g-hospital.onrender.com')]
+    # Sécurité HTTPS pour la production
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+else:
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.1.100']
+
+# --- 4. APPLICATIONS ---
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -20,8 +35,10 @@ INSTALLED_APPS = [
     'app', 
 ]
 
+# --- 5. MIDDLEWARE (Corrigé ici) ---
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware', 
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -32,6 +49,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'conf.urls'
 
+# --- 6. TEMPLATES ---
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -39,6 +57,7 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
@@ -49,43 +68,47 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'conf.wsgi.application'
 
-# DATABASE : REVENU SUR SQLITE (Ton choix initial)
+# --- 7. BASE DE DONNÉES (SQLITE PERSISTANT) ---
+if not DEBUG:
+    DATABASE_PATH = '/data/db.sqlite3'
+else:
+    DATABASE_PATH = BASE_DIR / 'db.sqlite3'
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': DATABASE_PATH,
     }
 }
 
-# INTERNATIONALISATION (Heure de Kinshasa)
-LANGUAGE_CODE = 'fr-fr'
-TIME_ZONE = 'Africa/Kinshasa'  # Pour avoir 17h au lieu de 8h
-USE_I18N = True
-USE_TZ = False
-
-
-
-# Fichiers Statiques
+# --- 8. STATIQUES ET MÉDIAS ---
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
+STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Médias (Images)
+if not DEBUG:
+    MEDIA_ROOT = '/data/media'
+else:
+    MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
 
-# Redirections
-LOGIN_REDIRECT_URL = '/panel/' 
-LOGIN_URL = '/login/'
-LOGOUT_REDIRECT_URL = '/home/' 
-
-# Emails (Gmail)
+# --- 9. EMAILS ---
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'mukokogarciagx@gmail.com'
-EMAIL_HOST_PASSWORD = 'xxxx xxxx xxxx xxxx' 
+EMAIL_HOST_USER = os.environ.get('EMAIL_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')
 
+# --- 10. CONFIGURATION GÉNÉRALE ---
+LANGUAGE_CODE = 'fr-fr'
+TIME_ZONE = 'Africa/Kinshasa'
+USE_I18N = True
+USE_TZ = False
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Redirections
+LOGIN_REDIRECT_URL = '/panel/' 
+LOGIN_URL = '/login/'
+LOGOUT_REDIRECT_URL = '/home/'
