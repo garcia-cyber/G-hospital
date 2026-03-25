@@ -13,14 +13,13 @@ DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-local-dev-key')
 
 if not DEBUG:
+    # URL de ton projet sur Render
     ALLOWED_HOSTS = [os.environ.get('RENDER_EXTERNAL_HOSTNAME', 'g-hospital.onrender.com')]
-    # Sécurité HTTPS pour la production
-    SECURE_SSL_REDIRECT = True
+    
+    # Sécurité HTTPS pour la production (Optionnel sur Free Tier, mais recommandé)
+    SECURE_SSL_REDIRECT = False  # Garde à False si tu as des problèmes de redirection au début
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
-    SECURE_HSTS_SECONDS = 31536000
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
 else:
     ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.1.100']
 
@@ -35,7 +34,7 @@ INSTALLED_APPS = [
     'app', 
 ]
 
-# --- 5. MIDDLEWARE (Corrigé ici) ---
+# --- 5. MIDDLEWARE ---
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware', 
@@ -68,16 +67,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'conf.wsgi.application'
 
-# --- 7. BASE DE DONNÉES (SQLITE PERSISTANT) ---
-if not DEBUG:
-    DATABASE_PATH = '/data/db.sqlite3'
-else:
-    DATABASE_PATH = BASE_DIR / 'db.sqlite3'
-
+# --- 7. BASE DE DONNÉES (SQLITE ÉPHÉMÈRE) ---
+# En mode Gratuit (Option B), on utilise le dossier du projet car /data est interdit
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': DATABASE_PATH,
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -87,11 +82,9 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-if not DEBUG:
-    MEDIA_ROOT = '/data/media'
-else:
-    MEDIA_ROOT = BASE_DIR / 'media'
+# Les médias seront stockés dans le dossier du projet (ils s'effaceront aussi au redémarrage)
 MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # --- 9. EMAILS ---
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
